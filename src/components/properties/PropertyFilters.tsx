@@ -24,11 +24,11 @@ export const PropertyFilters = ({ filters, onFiltersChange }: PropertyFiltersPro
   const clearFilters = () => {
     onFiltersChange({
       city: '',
-      property_type: '',
-      listing_type: '',
+      property_type: 'all',
+      listing_type: 'all',
       min_price: undefined,
       max_price: undefined,
-      status: 'active'
+      status: 'all'
     })
   }
 
@@ -80,7 +80,7 @@ export const PropertyFilters = ({ filters, onFiltersChange }: PropertyFiltersPro
                     <SelectValue placeholder="All types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Types</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="apartment">Apartment</SelectItem>
                     <SelectItem value="villa">Villa</SelectItem>
                     <SelectItem value="plot">Plot</SelectItem>
@@ -98,7 +98,7 @@ export const PropertyFilters = ({ filters, onFiltersChange }: PropertyFiltersPro
                     <SelectValue placeholder="All listings" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Listings</SelectItem>
+                    <SelectItem value="all">All Listings</SelectItem>
                     <SelectItem value="sale">For Sale</SelectItem>
                     <SelectItem value="rent">For Rent</SelectItem>
                     <SelectItem value="lease">For Lease</SelectItem>
@@ -135,7 +135,7 @@ export const PropertyFilters = ({ filters, onFiltersChange }: PropertyFiltersPro
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="sold">Sold</SelectItem>
                     <SelectItem value="rented">Rented</SelectItem>
