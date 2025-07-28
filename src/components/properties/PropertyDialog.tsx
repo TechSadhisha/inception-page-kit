@@ -121,7 +121,7 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
       status: formData.status,
       availability_date: formData.availability_date || undefined,
       possession_status: formData.possession_status,
-      project_id: formData.project_id || undefined,
+      project_id: formData.project_id && formData.project_id !== 'none' ? formData.project_id : undefined,
       assigned_to: formData.assigned_to || undefined,
     }
     
@@ -161,7 +161,7 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
                     <SelectValue placeholder="Select project (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Project</SelectItem>
+                    <SelectItem value="none">No Project</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.name}
