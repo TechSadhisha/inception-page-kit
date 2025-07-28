@@ -170,6 +170,42 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_configs: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          integration_type: string
+          is_active: boolean
+          name: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_active?: boolean
+          name: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_active?: boolean
+          name?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       knowledge_videos: {
         Row: {
           category: string | null
@@ -202,6 +238,45 @@ export type Database = {
           title?: string
           updated_at?: string
           url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lead_sources: {
+        Row: {
+          config: Json
+          conversion_rate: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          source_type: string
+          total_leads: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          source_type: string
+          total_leads?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          source_type?: string
+          total_leads?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -244,6 +319,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      portal_integrations: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          integration_id: string
+          is_active: boolean
+          portal_name: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_id: string
+          is_active?: boolean
+          portal_name: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          integration_id?: string
+          is_active?: boolean
+          portal_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -396,6 +501,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      property_listings: {
+        Row: {
+          address: string | null
+          amenities: Json | null
+          area_sqft: number | null
+          availability_status: string
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          created_at: string
+          description: string | null
+          external_id: string | null
+          id: string
+          images: Json | null
+          last_synced_at: string | null
+          listing_type: string
+          location_lat: number | null
+          location_lng: number | null
+          price: number | null
+          property_type: string
+          source_portal: string | null
+          state: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          zipcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: Json | null
+          area_sqft?: number | null
+          availability_status?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          images?: Json | null
+          last_synced_at?: string | null
+          listing_type?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          price?: number | null
+          property_type?: string
+          source_portal?: string | null
+          state?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          zipcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: Json | null
+          area_sqft?: number | null
+          availability_status?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          images?: Json | null
+          last_synced_at?: string | null
+          listing_type?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          price?: number | null
+          property_type?: string
+          source_portal?: string | null
+          state?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          zipcode?: string | null
+        }
+        Relationships: []
       }
       prospects: {
         Row: {

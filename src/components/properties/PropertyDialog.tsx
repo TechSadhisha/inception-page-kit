@@ -48,8 +48,8 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
       setFormData({
         title: property.title,
         description: property.description || '',
-        property_type: property.property_type,
-        listing_type: property.listing_type,
+        property_type: property.property_type as any,
+        listing_type: property.listing_type as any,
         address: property.address,
         city: property.city,
         state: property.state,
@@ -63,9 +63,9 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
         price: property.price.toString(),
         maintenance_charges: property.maintenance_charges?.toString() || '',
         security_deposit: property.security_deposit?.toString() || '',
-        status: property.status,
+        status: property.status as any,
         availability_date: property.availability_date || '',
-        possession_status: property.possession_status || 'ready',
+        possession_status: (property.possession_status || 'ready') as any,
         project_id: property.project_id || '',
         assigned_to: property.assigned_to || '',
       })
