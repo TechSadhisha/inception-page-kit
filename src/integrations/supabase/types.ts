@@ -98,6 +98,54 @@ export type Database = {
         }
         Relationships: []
       }
+      facebook_integrations: {
+        Row: {
+          access_token: string
+          ad_account_id: string | null
+          ad_account_name: string | null
+          business_id: string | null
+          created_at: string
+          facebook_user_id: string
+          id: string
+          is_active: boolean | null
+          permissions: string[] | null
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          ad_account_id?: string | null
+          ad_account_name?: string | null
+          business_id?: string | null
+          created_at?: string
+          facebook_user_id: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: string[] | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          ad_account_id?: string | null
+          ad_account_name?: string | null
+          business_id?: string | null
+          created_at?: string
+          facebook_user_id?: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: string[] | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gmail_accounts: {
         Row: {
           access_token: string | null

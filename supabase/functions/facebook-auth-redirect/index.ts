@@ -1,0 +1,176 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.5'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+interface FacebookTokenResponse {
+  access_token: string
+  token_type: string
+  expires_in: number
+}
+
+interface FacebookUserResponse {
+  id: string
+  name: string
+  email: string
+}
+
+interface FacebookAdAccount {
+  id: string
+  name: string
+  account_status: number
+}
+
+interface FacebookAdAccountsResponse {
+  data: FacebookAdAccount[]
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const url = new URL(req.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state'); // Contains user_id
+    const error = url.searchParams.get('error');
+
+    console.log('Facebook OAuth callback received:', { code: !!code, state, error });
+
+    if (error) {
+      console.error('Facebook OAuth error:', error);
+      return new Response(`
+        <html>
+          <body>
+            <script>
+              window.opener?.postMessage({ type: 'FACEBOOK_AUTH_ERROR', error: '${error}' }, '*');
+              window.close();
+            </script>
+          </body>
+        </html>
+      `, {
+        headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+      });
+    }
+
+    if (!code || !state) {
+      throw new Error('Missing authorization code or state parameter');
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://graph.facebook.com/v20.0/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: Deno.env.get('FACEBOOK_APP_ID') ?? '',
+        client_secret: Deno.env.get('FACEBOOK_APP_SECRET') ?? '',
+        redirect_uri: `${Deno.env.get('SUPABASE_URL')}/functions/v1/facebook-auth-redirect`,
+        code: code,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error('Token exchange failed:', errorText);
+      throw new Error('Failed to exchange code for access token');
+    }
+
+    const tokenData: FacebookTokenResponse = await tokenResponse.json();
+    console.log('Token exchange successful');
+
+    // Get user information
+    const userResponse = await fetch(`https://graph.facebook.com/v20.0/me?fields=id,name,email&access_token=${tokenData.access_token}`);
+    if (!userResponse.ok) {
+      throw new Error('Failed to fetch user information');
+    }
+
+    const userData: FacebookUserResponse = await userResponse.json();
+    console.log('User data fetched:', { id: userData.id, name: userData.name });
+
+    // Get ad accounts
+    const adAccountsResponse = await fetch(`https://graph.facebook.com/v20.0/me/adaccounts?fields=id,name,account_status&access_token=${tokenData.access_token}`);
+    let adAccounts: FacebookAdAccount[] = [];
+    
+    if (adAccountsResponse.ok) {
+      const adAccountsData: FacebookAdAccountsResponse = await adAccountsResponse.json();
+      adAccounts = adAccountsData.data || [];
+      console.log('Ad accounts fetched:', adAccounts.length);
+    }
+
+    // Calculate token expiration
+    const tokenExpiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
+
+    // Store the integration in database
+    const { error: dbError } = await supabase
+      .from('facebook_integrations')
+      .upsert({
+        user_id: state,
+        facebook_user_id: userData.id,
+        access_token: tokenData.access_token,
+        token_expires_at: tokenExpiresAt.toISOString(),
+        ad_account_id: adAccounts.length > 0 ? adAccounts[0].id : null,
+        ad_account_name: adAccounts.length > 0 ? adAccounts[0].name : null,
+        permissions: ['ads_management', 'ads_read', 'business_management'],
+        is_active: true,
+      }, {
+        onConflict: 'user_id,facebook_user_id'
+      });
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Failed to save integration');
+    }
+
+    console.log('Integration saved successfully');
+
+    // Return success page that notifies the parent window
+    return new Response(`
+      <html>
+        <body>
+          <script>
+            window.opener?.postMessage({ 
+              type: 'FACEBOOK_AUTH_SUCCESS', 
+              data: {
+                user: ${JSON.stringify(userData)},
+                adAccounts: ${JSON.stringify(adAccounts)}
+              }
+            }, '*');
+            window.close();
+          </script>
+        </body>
+      </html>
+    `, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+    });
+
+  } catch (error) {
+    console.error('Error in Facebook OAuth callback:', error);
+    
+    return new Response(`
+      <html>
+        <body>
+          <script>
+            window.opener?.postMessage({ 
+              type: 'FACEBOOK_AUTH_ERROR', 
+              error: '${error instanceof Error ? error.message : 'Unknown error'}' 
+            }, '*');
+            window.close();
+          </script>
+        </body>
+      </html>
+    `, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+    });
+  }
+});
