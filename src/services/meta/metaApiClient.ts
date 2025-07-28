@@ -74,6 +74,18 @@ export class MetaApiClient {
 
 export const createMetaApiClient = async (): Promise<MetaApiClient | null> => {
   try {
+    // First try to get from Facebook integration (OAuth)
+    const { data: facebookIntegration } = await supabase
+      .from('facebook_integrations')
+      .select('access_token, ad_account_id')
+      .eq('is_active', true)
+      .single()
+
+    if (facebookIntegration?.access_token && facebookIntegration?.ad_account_id) {
+      return new MetaApiClient(facebookIntegration.access_token, facebookIntegration.ad_account_id)
+    }
+
+    // Fallback to legacy campaign_settings for backward compatibility
     const { data: settings } = await supabase
       .from('campaign_settings')
       .select('access_token, ad_account_id')
