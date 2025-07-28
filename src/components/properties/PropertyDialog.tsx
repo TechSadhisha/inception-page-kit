@@ -39,7 +39,7 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
     status: 'active' as const,
     availability_date: '',
     possession_status: 'ready' as const,
-    project_id: '',
+    project_id: 'none',
     assigned_to: '',
   })
 
@@ -66,7 +66,7 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
         status: property.status as any,
         availability_date: property.availability_date || '',
         possession_status: (property.possession_status || 'ready') as any,
-        project_id: property.project_id || '',
+        project_id: property.project_id || 'none',
         assigned_to: property.assigned_to || '',
       })
     } else {
@@ -91,7 +91,7 @@ export const PropertyDialog = ({ open, onOpenChange, property, onSubmit, isLoadi
         status: 'active',
         availability_date: '',
         possession_status: 'ready',
-        project_id: '',
+        project_id: 'none',
         assigned_to: '',
       })
     }
