@@ -28,7 +28,7 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
 
     // Facebook OAuth URL with required permissions
     // Get the Facebook App ID from the edge function (it's configured as a secret)
-    const facebookAppId = 'YOUR_FACEBOOK_APP_ID' // This will be handled by the backend
+    const facebookAppId = '1116140560381976' // This will be handled by the backend
     const redirectUri = encodeURIComponent('https://qnmbwccznpikmkrzjoin.supabase.co/functions/v1/facebook-auth-redirect')
     const scope = encodeURIComponent('ads_management,ads_read,business_management,pages_show_list,email,public_profile')
     const state = user.id // Pass user ID as state parameter
