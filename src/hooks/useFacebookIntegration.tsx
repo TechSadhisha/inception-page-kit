@@ -10,6 +10,9 @@ interface FacebookIntegration {
   token_expires_at: string | null
   ad_account_id: string | null
   ad_account_name: string | null
+  selected_page_id: string | null
+  selected_page_name: string | null
+  page_access_token: string | null
   business_id: string | null
   permissions: string[]
   is_active: boolean
@@ -198,6 +201,42 @@ export const useFacebookIntegration = () => {
     }
   }
 
+  const updateSelectedPage = async (pageId: string, pageName: string, pageAccessToken: string) => {
+    if (!user || !integration) return
+
+    try {
+      const { error } = await supabase
+        .from('facebook_integrations')
+        .update({
+          selected_page_id: pageId,
+          selected_page_name: pageName,
+          page_access_token: pageAccessToken
+        })
+        .eq('id', integration.id)
+
+      if (error) throw error
+
+      setIntegration(prev => prev ? {
+        ...prev,
+        selected_page_id: pageId,
+        selected_page_name: pageName,
+        page_access_token: pageAccessToken
+      } : null)
+
+      toast({
+        title: "Page Updated",
+        description: `Selected page: ${pageName}`
+      })
+    } catch (error) {
+      console.error('Error updating page:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update page selection",
+        variant: "destructive"
+      })
+    }
+  }
+
   useEffect(() => {
     loadIntegration()
   }, [user])
@@ -213,6 +252,7 @@ export const useFacebookIntegration = () => {
     getAdAccounts,
     getPages,
     updateAdAccount,
+    updateSelectedPage,
     refreshIntegration: loadIntegration
   }
 }

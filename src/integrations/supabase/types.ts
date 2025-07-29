@@ -108,8 +108,11 @@ export type Database = {
           facebook_user_id: string
           id: string
           is_active: boolean | null
+          page_access_token: string | null
           permissions: string[] | null
           refresh_token: string | null
+          selected_page_id: string | null
+          selected_page_name: string | null
           token_expires_at: string | null
           updated_at: string
           user_id: string
@@ -123,8 +126,11 @@ export type Database = {
           facebook_user_id: string
           id?: string
           is_active?: boolean | null
+          page_access_token?: string | null
           permissions?: string[] | null
           refresh_token?: string | null
+          selected_page_id?: string | null
+          selected_page_name?: string | null
           token_expires_at?: string | null
           updated_at?: string
           user_id: string
@@ -138,8 +144,11 @@ export type Database = {
           facebook_user_id?: string
           id?: string
           is_active?: boolean | null
+          page_access_token?: string | null
           permissions?: string[] | null
           refresh_token?: string | null
+          selected_page_id?: string | null
+          selected_page_name?: string | null
           token_expires_at?: string | null
           updated_at?: string
           user_id?: string

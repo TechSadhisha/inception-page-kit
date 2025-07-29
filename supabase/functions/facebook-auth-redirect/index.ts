@@ -23,6 +23,13 @@ interface FacebookAdAccount {
   account_status: number
 }
 
+interface FacebookPage {
+  id: string
+  name: string
+  access_token: string
+  category: string
+}
+
 interface FacebookAdAccountsResponse {
   data: FacebookAdAccount[]
 }
@@ -98,14 +105,25 @@ Deno.serve(async (req) => {
     const userData: FacebookUserResponse = await userResponse.json();
     console.log('User data fetched:', { id: userData.id, name: userData.name });
 
-    // Get ad accounts
-    const adAccountsResponse = await fetch(`https://graph.facebook.com/v20.0/me/adaccounts?fields=id,name,account_status&access_token=${tokenData.access_token}`);
+    // Get ad accounts and pages
+    const [adAccountsResponse, pagesResponse] = await Promise.all([
+      fetch(`https://graph.facebook.com/v20.0/me/adaccounts?fields=id,name,account_status&access_token=${tokenData.access_token}`),
+      fetch(`https://graph.facebook.com/v20.0/me/accounts?fields=id,name,access_token,category&access_token=${tokenData.access_token}`)
+    ])
+    
     let adAccounts: FacebookAdAccount[] = [];
+    let pages: FacebookPage[] = [];
     
     if (adAccountsResponse.ok) {
       const adAccountsData: FacebookAdAccountsResponse = await adAccountsResponse.json();
       adAccounts = adAccountsData.data || [];
       console.log('Ad accounts fetched:', adAccounts.length);
+    }
+
+    if (pagesResponse.ok) {
+      const pagesData = await pagesResponse.json();
+      pages = pagesData.data || [];
+      console.log('Pages fetched:', pages.length);
     }
 
     // Calculate token expiration
@@ -143,7 +161,8 @@ Deno.serve(async (req) => {
               type: 'FACEBOOK_AUTH_SUCCESS', 
               data: {
                 user: ${JSON.stringify(userData)},
-                adAccounts: ${JSON.stringify(adAccounts)}
+                adAccounts: ${JSON.stringify(adAccounts)},
+                pages: ${JSON.stringify(pages)}
               }
             }, '*');
             window.close();

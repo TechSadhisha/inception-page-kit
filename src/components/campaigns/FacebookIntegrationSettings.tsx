@@ -14,6 +14,13 @@ interface FacebookAdAccount {
   account_status: number
 }
 
+interface FacebookPage {
+  id: string
+  name: string
+  access_token: string
+  category: string
+}
+
 export const FacebookIntegrationSettings = () => {
   const { 
     integration, 
@@ -24,19 +31,26 @@ export const FacebookIntegrationSettings = () => {
     disconnect, 
     testConnection,
     getAdAccounts,
+    getPages,
     updateAdAccount,
-    refreshIntegration 
+    updateSelectedPage,
+    refreshIntegration
   } = useFacebookIntegration()
   
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'success' | 'failed'>('unknown')
   const [adAccounts, setAdAccounts] = useState<FacebookAdAccount[]>([])
+  const [pages, setPages] = useState<FacebookPage[]>([])
   const [loadingAdAccounts, setLoadingAdAccounts] = useState(false)
+  const [loadingPages, setLoadingPages] = useState(false)
 
   const handleConnectionSuccess = (data: any) => {
     refreshIntegration()
     if (data.adAccounts?.length > 0) {
       setAdAccounts(data.adAccounts)
+    }
+    if (data.pages?.length > 0) {
+      setPages(data.pages)
     }
   }
 
@@ -47,11 +61,19 @@ export const FacebookIntegrationSettings = () => {
       setConnectionStatus(result ? 'success' : 'failed')
       
       if (result) {
-        // Also load ad accounts when connection test succeeds
+        // Load both ad accounts and pages when connection test succeeds
         setLoadingAdAccounts(true)
-        const accounts = await getAdAccounts()
+        setLoadingPages(true)
+        
+        const [accounts, pagesList] = await Promise.all([
+          getAdAccounts(),
+          getPages()
+        ])
+        
         setAdAccounts(accounts)
+        setPages(pagesList)
         setLoadingAdAccounts(false)
+        setLoadingPages(false)
       }
     } catch (error) {
       setConnectionStatus('failed')
@@ -64,6 +86,13 @@ export const FacebookIntegrationSettings = () => {
     const selectedAccount = adAccounts.find(account => account.id === value)
     if (selectedAccount) {
       updateAdAccount(selectedAccount.id, selectedAccount.name)
+    }
+  }
+
+  const handlePageChange = (value: string) => {
+    const selectedPage = pages.find(page => page.id === value)
+    if (selectedPage) {
+      updateSelectedPage(selectedPage.id, selectedPage.name, selectedPage.access_token)
     }
   }
 
@@ -199,6 +228,36 @@ export const FacebookIntegrationSettings = () => {
           </div>
         </div>
 
+        {/* Page Selection */}
+        {pages.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-medium flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Page Selection
+            </h4>
+            <Select
+              value={integration?.selected_page_id || ''}
+              onValueChange={handlePageChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a Facebook page" />
+              </SelectTrigger>
+              <SelectContent>
+                {pages.map((page) => (
+                  <SelectItem key={page.id} value={page.id}>
+                    {page.name} ({page.category})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {integration?.selected_page_name && (
+              <p className="text-sm text-muted-foreground">
+                Currently using page: {integration.selected_page_name}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Ad Account Selection */}
         {adAccounts.length > 0 && (
           <div className="space-y-3">
@@ -234,10 +293,10 @@ export const FacebookIntegrationSettings = () => {
           </div>
         )}
 
-        {loadingAdAccounts && (
+        {(loadingAdAccounts || loadingPages) && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading ad accounts...
+            Loading {loadingAdAccounts && loadingPages ? 'accounts and pages' : loadingAdAccounts ? 'ad accounts' : 'pages'}...
           </div>
         )}
 
