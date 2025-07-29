@@ -29,6 +29,13 @@ interface FacebookAdAccount {
   account_status: number
 }
 
+interface FacebookPage {
+  id: string
+  name: string
+  access_token: string
+  category: string
+}
+
 export const useFacebookIntegration = () => {
   const [integration, setIntegration] = useState<FacebookIntegration | null>(null)
   const [loading, setLoading] = useState(true)
@@ -138,6 +145,25 @@ export const useFacebookIntegration = () => {
     }
   }
 
+  const getPages = async (): Promise<FacebookPage[]> => {
+    if (!integration?.access_token) {
+      return []
+    }
+
+    try {
+      const response = await fetch(`https://graph.facebook.com/v20.0/me/accounts?fields=id,name,access_token,category&access_token=${integration.access_token}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch pages')
+      }
+
+      const data = await response.json()
+      return data.data || []
+    } catch (error) {
+      console.error('Error fetching pages:', error)
+      return []
+    }
+  }
+
   const updateAdAccount = async (adAccountId: string, adAccountName: string) => {
     if (!user || !integration) return
 
@@ -185,6 +211,7 @@ export const useFacebookIntegration = () => {
     disconnect,
     testConnection,
     getAdAccounts,
+    getPages,
     updateAdAccount,
     refreshIntegration: loadIntegration
   }
