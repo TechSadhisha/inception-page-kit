@@ -98,6 +98,60 @@ export type Database = {
         }
         Relationships: []
       }
+      facebook_integrations: {
+        Row: {
+          access_token: string
+          ad_account_id: string | null
+          ad_account_name: string | null
+          business_id: string | null
+          created_at: string | null
+          facebook_user_id: string
+          is_active: boolean | null
+          page_access_token: string | null
+          permissions: string[] | null
+          refresh_token: string | null
+          selected_page_id: string | null
+          selected_page_name: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          ad_account_id?: string | null
+          ad_account_name?: string | null
+          business_id?: string | null
+          created_at?: string | null
+          facebook_user_id: string
+          is_active?: boolean | null
+          page_access_token?: string | null
+          permissions?: string[] | null
+          refresh_token?: string | null
+          selected_page_id?: string | null
+          selected_page_name?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          ad_account_id?: string | null
+          ad_account_name?: string | null
+          business_id?: string | null
+          created_at?: string | null
+          facebook_user_id?: string
+          is_active?: boolean | null
+          page_access_token?: string | null
+          permissions?: string[] | null
+          refresh_token?: string | null
+          selected_page_id?: string | null
+          selected_page_name?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       gmail_accounts: {
         Row: {
           access_token: string | null

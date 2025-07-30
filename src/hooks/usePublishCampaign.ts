@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { createMetaAdsService } from '@/services/metaAdsService'
+import { useFacebookIntegration } from './useFacebookIntegration'
 
 interface CampaignToPublish {
   name: string
@@ -21,20 +22,30 @@ interface CampaignToPublish {
 export const usePublishCampaign = () => {
   const [isPublishing, setIsPublishing] = useState(false)
   const { toast } = useToast()
+  const { isConnected, hasValidToken } = useFacebookIntegration()
 
   const publishToMeta = async (campaign: CampaignToPublish) => {
+    if (!isConnected || !hasValidToken) {
+      toast({
+        title: "Facebook Not Connected",
+        description: "Please connect your Facebook account in Campaign Settings before publishing.",
+        variant: "destructive"
+      })
+      return { success: false, error: 'Facebook integration not connected' }
+    }
+
     setIsPublishing(true)
     
     try {
       const metaService = await createMetaAdsService()
       if (!metaService) {
-        throw new Error('Meta Ads service not available. Please check your Meta Business settings.')
+        throw new Error('Meta Ads service not available. Please check your Facebook integration.')
       }
 
       // Test connection first
       const isConnected = await metaService.testConnection()
       if (!isConnected) {
-        throw new Error('Failed to connect to Meta Ads API. Please check your access token.')
+        throw new Error('Failed to connect to Meta Ads API. Please check your Facebook integration.')
       }
 
       // Upload images
@@ -46,12 +57,12 @@ export const usePublishCampaign = () => {
         }
       }
 
-      // Prepare campaign data
+      // Prepare campaign data for Facebook API v20.0
       const metaCampaignData = {
         name: campaign.name,
         objective: campaign.objective,
         status: 'PAUSED' as const, // Start paused for safety
-        daily_budget: campaign.budget,
+        daily_budget: campaign.budget * 100, // Facebook expects budget in cents
         targeting: {
           geo_locations: {
             countries: ['IN'], // Defaulting to India based on the cities in your app
@@ -82,12 +93,14 @@ export const usePublishCampaign = () => {
       }
     } catch (error) {
       console.error('Publish campaign error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to publish campaign to Meta'
+      
       toast({
         title: "Publish Failed",
-        description: error instanceof Error ? error.message : 'Failed to publish campaign to Meta',
+        description: errorMessage,
         variant: "destructive",
       })
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      return { success: false, error: errorMessage }
     } finally {
       setIsPublishing(false)
     }
@@ -95,6 +108,7 @@ export const usePublishCampaign = () => {
 
   return {
     publishToMeta,
-    isPublishing
+    isPublishing,
+    canPublish: isConnected && hasValidToken
   }
 }

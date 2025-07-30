@@ -15,6 +15,46 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Facebook JavaScript SDK - Async Loading -->
+    <script>
+      // Initialize Facebook SDK asynchronously
+      window.fbAsyncInit = function() {
+        // Fetch Facebook App ID from backend
+        fetch('/supabase/functions/v1/get-facebook-config', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(config => {
+          if (config.appId) {
+            FB.init({
+              appId      : config.appId,       // Facebook App ID from backend
+              cookie     : true,               // Enable cookies for server-side authentication
+              xfbml      : true,              // Parse XFBML tags
+              version    : 'v20.0'            // Facebook API version
+            });
+            
+            // Log page view for Facebook Analytics
+            FB.AppEvents.logPageView();
+          }
+        })
+        .catch(error => {
+          console.error('Failed to load Facebook config:', error);
+        });
+      };
+
+      // Load Facebook SDK asynchronously (non-blocking)
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) return; // Prevent duplicate loading
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
   </head>
 
   <body>

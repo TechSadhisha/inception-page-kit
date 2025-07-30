@@ -1,1 +1,10 @@
 project_id = "qnmbwccznpikmkrzjoin"
+
+[functions.facebook-auth-redirect]
+verify_jwt = false
+
+[functions.facebook-disconnect]
+verify_jwt = true
+
+[functions.get-facebook-config]
+verify_jwt = false

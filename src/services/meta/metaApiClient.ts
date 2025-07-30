@@ -74,16 +74,24 @@ export class MetaApiClient {
 
 export const createMetaApiClient = async (): Promise<MetaApiClient | null> => {
   try {
-    const { data: settings } = await supabase
-      .from('campaign_settings')
-      .select('access_token, ad_account_id')
-      .single()
-
-    if (!settings?.access_token || !settings?.ad_account_id) {
-      throw new Error('Meta credentials not configured')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      throw new Error('Authentication required')
     }
 
-    return new MetaApiClient(settings.access_token, settings.ad_account_id)
+    // Get active Facebook integration via OAuth
+    const { data: facebookIntegration } = await supabase
+      .from('facebook_integrations')
+      .select('access_token, ad_account_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .single()
+
+    if (!facebookIntegration?.access_token || !facebookIntegration?.ad_account_id) {
+      throw new Error('Facebook integration not found. Please connect your Facebook account first.')
+    }
+
+    return new MetaApiClient(facebookIntegration.access_token, facebookIntegration.ad_account_id)
   } catch (error) {
     console.error('Failed to create Meta API client:', error)
     return null
