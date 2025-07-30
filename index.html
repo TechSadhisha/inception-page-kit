@@ -20,15 +20,30 @@
     <script>
       // Initialize Facebook SDK asynchronously
       window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '756261370100459', // Facebook App ID
-          cookie     : true,               // Enable cookies for server-side authentication
-          xfbml      : true,              // Parse XFBML tags
-          version    : 'v20.0'            // Facebook API version
+        // Fetch Facebook App ID from backend
+        fetch('/supabase/functions/v1/get-facebook-config', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(config => {
+          if (config.appId) {
+            FB.init({
+              appId      : config.appId,       // Facebook App ID from backend
+              cookie     : true,               // Enable cookies for server-side authentication
+              xfbml      : true,              // Parse XFBML tags
+              version    : 'v20.0'            // Facebook API version
+            });
+            
+            // Log page view for Facebook Analytics
+            FB.AppEvents.logPageView();
+          }
+        })
+        .catch(error => {
+          console.error('Failed to load Facebook config:', error);
         });
-        
-        // Log page view for Facebook Analytics
-        FB.AppEvents.logPageView();
       };
 
       // Load Facebook SDK asynchronously (non-blocking)

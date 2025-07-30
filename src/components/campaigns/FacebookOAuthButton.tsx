@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useFacebookConfig } from '@/hooks/useFacebookConfig'
 import { Facebook } from 'lucide-react'
 
 interface FacebookOAuthButtonProps {
@@ -13,6 +14,7 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const { user } = useAuth()
+  const { config: facebookConfig, loading: configLoading } = useFacebookConfig()
 
   const handleFacebookLogin = () => {
     if (!user) {
@@ -24,16 +26,23 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
       return
     }
 
+    if (!facebookConfig) {
+      toast({
+        title: "Configuration Error",
+        description: "Facebook configuration not loaded. Please try again.",
+        variant: "destructive"
+      })
+      return
+    }
+
     setIsLoading(true)
 
     // Facebook OAuth URL with required permissions
-    // Get the Facebook App ID from the edge function (it's configured as a secret)
-    const facebookAppId = '756261370100459' // This will be handled by the backend
-    const redirectUri = encodeURIComponent('https://qnmbwccznpikmkrzjoin.supabase.co/functions/v1/facebook-auth-redirect')
+    const redirectUri = encodeURIComponent(facebookConfig.redirectUri)
     const scope = encodeURIComponent('ads_management,ads_read,business_management,pages_show_list,email,public_profile')
     const state = user.id // Pass user ID as state parameter
     
-    const facebookOAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&response_type=code`
+    const facebookOAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${facebookConfig.appId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&response_type=code`
 
     // Open popup window for Facebook OAuth
     const popup = window.open(
@@ -87,12 +96,12 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
   return (
     <Button
       onClick={handleFacebookLogin}
-      disabled={isLoading}
+      disabled={isLoading || configLoading || !facebookConfig}
       className="w-full"
       size="lg"
     >
       <Facebook className="mr-2 h-5 w-5" />
-      {isLoading ? 'Connecting...' : 'Connect with Facebook'}
+      {configLoading ? 'Loading...' : isLoading ? 'Connecting...' : 'Connect with Facebook'}
     </Button>
   )
 }
