@@ -26,6 +26,7 @@ import WorkflowAutomation from '@/pages/WorkflowAutomation'
 import Integrations from '@/pages/Integrations'
 import TermsAndConditions from '@/pages/TermsAndConditions'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
+import DataDeletion from '@/pages/DataDeletion'
 import './App.css'
 
 const queryClient = new QueryClient()
@@ -58,6 +59,7 @@ function App() {
             </Route>
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/data-deletion" element={<DataDeletion />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
