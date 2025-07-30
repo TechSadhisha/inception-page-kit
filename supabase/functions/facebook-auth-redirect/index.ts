@@ -132,25 +132,30 @@ Deno.serve(async (req) => {
     // Calculate token expiration
     const tokenExpiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
 
+    // Prepare upsert payload
+    const upsertPayload = {
+      user_id: state,
+      facebook_user_id: userData.id,
+      access_token: tokenData.access_token,
+      token_expires_at: tokenExpiresAt.toISOString(),
+      ad_account_id: adAccounts.length > 0 ? adAccounts[0].id : null,
+      ad_account_name: adAccounts.length > 0 ? adAccounts[0].name : null,
+      permissions: ['ads_management', 'ads_read', 'business_management'],
+      is_active: true,
+    };
+
+    console.log('Upsert payload:', upsertPayload);
+
     // Store the integration in database
     const { error: dbError } = await supabase
       .from('facebook_integrations')
-      .upsert({
-        user_id: state,
-        facebook_user_id: userData.id,
-        access_token: tokenData.access_token,
-        token_expires_at: tokenExpiresAt.toISOString(),
-        ad_account_id: adAccounts.length > 0 ? adAccounts[0].id : null,
-        ad_account_name: adAccounts.length > 0 ? adAccounts[0].name : null,
-        permissions: ['ads_management', 'ads_read', 'business_management'],
-        is_active: true,
-      }, {
+      .upsert(upsertPayload, {
         onConflict: 'user_id,facebook_user_id'
       });
 
     if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Failed to save integration');
+      console.error('Supabase upsert error details:', dbError);
+      throw new Error(`Failed to save integration: ${dbError.message}`);
     }
 
     console.log('Integration saved successfully');
