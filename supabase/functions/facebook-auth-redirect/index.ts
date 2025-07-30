@@ -97,7 +97,11 @@ Deno.serve(async (req) => {
     }
 
     const tokenData: FacebookTokenResponse = await tokenResponse.json();
-    console.log('Token exchange successful');
+    console.log('Token exchange successful. Token data:', {
+      token_type: tokenData.token_type,
+      expires_in: tokenData.expires_in,
+      expires_in_type: typeof tokenData.expires_in
+    });
 
     // Get user information
     const userResponse = await fetch(`https://graph.facebook.com/v20.0/me?fields=id,name,email&access_token=${tokenData.access_token}`);
@@ -129,15 +133,27 @@ Deno.serve(async (req) => {
       console.log('Pages fetched:', pages.length);
     }
 
-    // Calculate token expiration
-    const tokenExpiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
+    // Calculate token expiration with validation
+    const expiresInSeconds = Number(tokenData.expires_in);
+    let tokenExpiresAt: Date | null = null;
+
+    if (!expiresInSeconds || isNaN(expiresInSeconds) || expiresInSeconds <= 0) {
+      console.warn('Invalid expires_in value received from Facebook:', tokenData.expires_in);
+      // Use a fallback of 60 days for long-lived tokens (Facebook's typical behavior)
+      tokenExpiresAt = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+      console.log('Using fallback expiration (60 days)');
+    } else {
+      tokenExpiresAt = new Date(Date.now() + expiresInSeconds * 1000);
+    }
+
+    console.log('Token expires at:', tokenExpiresAt);
 
     // Prepare upsert payload
     const upsertPayload = {
       user_id: state,
       facebook_user_id: userData.id,
       access_token: tokenData.access_token,
-      token_expires_at: tokenExpiresAt.toISOString(),
+      token_expires_at: tokenExpiresAt ? tokenExpiresAt.toISOString() : null,
       ad_account_id: adAccounts.length > 0 ? adAccounts[0].id : null,
       ad_account_name: adAccounts.length > 0 ? adAccounts[0].name : null,
       permissions: ['ads_management', 'ads_read', 'business_management'],
