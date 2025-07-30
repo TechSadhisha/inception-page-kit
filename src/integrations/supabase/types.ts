@@ -104,9 +104,8 @@ export type Database = {
           ad_account_id: string | null
           ad_account_name: string | null
           business_id: string | null
-          created_at: string
+          created_at: string | null
           facebook_user_id: string
-          id: string
           is_active: boolean | null
           page_access_token: string | null
           permissions: string[] | null
@@ -114,7 +113,7 @@ export type Database = {
           selected_page_id: string | null
           selected_page_name: string | null
           token_expires_at: string | null
-          updated_at: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -122,9 +121,8 @@ export type Database = {
           ad_account_id?: string | null
           ad_account_name?: string | null
           business_id?: string | null
-          created_at?: string
+          created_at?: string | null
           facebook_user_id: string
-          id?: string
           is_active?: boolean | null
           page_access_token?: string | null
           permissions?: string[] | null
@@ -132,7 +130,7 @@ export type Database = {
           selected_page_id?: string | null
           selected_page_name?: string | null
           token_expires_at?: string | null
-          updated_at?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -140,9 +138,8 @@ export type Database = {
           ad_account_id?: string | null
           ad_account_name?: string | null
           business_id?: string | null
-          created_at?: string
+          created_at?: string | null
           facebook_user_id?: string
-          id?: string
           is_active?: boolean | null
           page_access_token?: string | null
           permissions?: string[] | null
@@ -150,7 +147,7 @@ export type Database = {
           selected_page_id?: string | null
           selected_page_name?: string | null
           token_expires_at?: string | null
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
