@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 
 interface FacebookIntegration {
-  id: string
+  user_id: string
   facebook_user_id: string
   access_token: string
   token_expires_at: string | null
@@ -16,8 +16,9 @@ interface FacebookIntegration {
   business_id: string | null
   permissions: string[]
   is_active: boolean
-  created_at: string
-  updated_at: string
+  created_at: string | null
+  updated_at: string | null
+  refresh_token: string | null
 }
 
 interface FacebookUser {
@@ -177,7 +178,7 @@ export const useFacebookIntegration = () => {
           ad_account_id: adAccountId,
           ad_account_name: adAccountName
         })
-        .eq('id', integration.id)
+        .eq('user_id', integration.user_id)
 
       if (error) throw error
 
@@ -212,7 +213,7 @@ export const useFacebookIntegration = () => {
           selected_page_name: pageName,
           page_access_token: pageAccessToken
         })
-        .eq('id', integration.id)
+        .eq('user_id', integration.user_id)
 
       if (error) throw error
 

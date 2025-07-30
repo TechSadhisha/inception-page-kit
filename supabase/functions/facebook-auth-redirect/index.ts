@@ -50,16 +50,19 @@ Deno.serve(async (req) => {
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state'); // Contains user_id
     const error = url.searchParams.get('error');
+    const errorMessage = url.searchParams.get('error_message');
 
-    console.log('Facebook OAuth callback received:', { code: !!code, state, error });
+    console.log('Facebook OAuth callback received:', { code: !!code, state, error, errorMessage });
 
-    if (error) {
-      console.error('Facebook OAuth error:', error);
+    // Check for Facebook OAuth errors first
+    if (error || errorMessage) {
+      const fbError = error || errorMessage;
+      console.error('Facebook OAuth error:', fbError);
       return new Response(`
         <html>
           <body>
             <script>
-              window.opener?.postMessage({ type: 'FACEBOOK_AUTH_ERROR', error: '${error}' }, '*');
+              window.opener?.postMessage({ type: 'FACEBOOK_AUTH_ERROR', error: 'Facebook OAuth failed: ${fbError}' }, '*');
               window.close();
             </script>
           </body>
