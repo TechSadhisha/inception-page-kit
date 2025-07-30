@@ -15,6 +15,31 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Facebook JavaScript SDK - Async Loading -->
+    <script>
+      // Initialize Facebook SDK asynchronously
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1994898331253424', // Facebook App ID
+          cookie     : true,               // Enable cookies for server-side authentication
+          xfbml      : true,              // Parse XFBML tags
+          version    : 'v20.0'            // Facebook API version
+        });
+        
+        // Log page view for Facebook Analytics
+        FB.AppEvents.logPageView();
+      };
+
+      // Load Facebook SDK asynchronously (non-blocking)
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) return; // Prevent duplicate loading
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
   </head>
 
   <body>
