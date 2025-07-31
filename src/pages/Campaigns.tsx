@@ -7,6 +7,7 @@ import { CampaignSettings } from '@/components/campaigns/CampaignSettings'
 import { CampaignSummary } from '@/components/campaigns/CampaignSummary'
 import { LeadsTable } from '@/components/campaigns/LeadsTable'
 import { PageAndAccountSelector } from '@/components/campaigns/PageAndAccountSelector'
+import { CampaignStatusTabs } from '@/components/campaigns/CampaignStatusTabs'
 import { useCampaigns } from '@/hooks/useCampaigns'
 import { useCampaignForm } from '@/hooks/useCampaignForm'
 import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
@@ -147,9 +148,9 @@ const Campaigns = () => {
           </TabsContent>
 
           <TabsContent value="campaigns" className="space-y-4">
-            <CampaignList
-              campaigns={campaigns}
-              onToggleStatus={toggleCampaignStatus}
+            <CampaignStatusTabs
+              campaigns={metaCampaigns}
+              loading={metaLoading}
             />
           </TabsContent>
 

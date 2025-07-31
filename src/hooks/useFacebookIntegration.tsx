@@ -91,12 +91,18 @@ export const useFacebookIntegration = () => {
 
       const response = await supabase.functions.invoke('facebook-disconnect', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
         }
       })
 
       if (response.error) {
+        console.error('Disconnect error:', response.error)
         throw response.error
+      }
+
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Failed to disconnect')
       }
 
       setIntegration(null)
@@ -108,7 +114,7 @@ export const useFacebookIntegration = () => {
       console.error('Error disconnecting Facebook:', error)
       toast({
         title: "Error",
-        description: "Failed to disconnect Facebook integration",
+        description: error instanceof Error ? error.message : "Failed to disconnect Facebook integration",
         variant: "destructive"
       })
     } finally {
@@ -174,16 +180,28 @@ export const useFacebookIntegration = () => {
     }
 
     try {
-      const response = await fetch(`https://graph.facebook.com/v20.0/${pageId}/adaccounts?fields=id,name,account_status&access_token=${integration.access_token}`)
+      // Facebook Pages don't have a direct /adaccounts endpoint
+      // Instead, get all user's ad accounts and filter by those accessible to the page
+      const response = await fetch(`https://graph.facebook.com/v20.0/me/adaccounts?fields=id,name,account_status&access_token=${integration.access_token}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch ad accounts for page')
+        const errorData = await response.json()
+        console.error('Facebook API error:', errorData)
+        throw new Error(`Failed to fetch ad accounts: ${errorData.error?.message || 'Unknown error'}`)
       }
 
       const data = await response.json()
+      
+      if (data.error) {
+        console.error('Facebook API error:', data.error)
+        throw new Error(data.error.message || 'Failed to fetch ad accounts')
+      }
+
+      // Return all available ad accounts for now
+      // In a production app, you might want to filter these based on page permissions
       return data.data || []
     } catch (error) {
       console.error('Error fetching ad accounts for page:', error)
-      return []
+      throw error
     }
   }
 
