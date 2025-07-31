@@ -44,6 +44,13 @@ export const useMetaCampaigns = () => {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
+  const clearCampaignData = () => {
+    setCampaigns([])
+    setLeads([])
+    setSummary(null)
+    setError(null)
+  }
+
   const loadCachedData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -79,8 +86,14 @@ export const useMetaCampaigns = () => {
   }
 
   const fetchCampaignsAndLeads = async (pageId?: string, adAccountId?: string) => {
+    // Prevent multiple parallel requests
+    if (loading) return
+
     setLoading(true)
     setError(null)
+    
+    // Clear old data before fetching new data
+    clearCampaignData()
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -135,9 +148,7 @@ export const useMetaCampaigns = () => {
     await fetchCampaignsAndLeads(pageId, adAccountId)
   }
 
-  useEffect(() => {
-    loadCachedData()
-  }, [])
+  // Don't auto-load cached data on mount - only load fresh data when user selects page/account
 
   return {
     campaigns,

@@ -29,12 +29,7 @@ const Campaigns = () => {
   } = useMetaCampaigns()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-  // Auto-fetch campaigns and leads when Facebook integration changes
-  useEffect(() => {
-    if (isConnected && !integrationLoading && integration?.ad_account_id) {
-      fetchCampaignsAndLeads(integration.selected_page_id || undefined, integration.ad_account_id)
-    }
-  }, [isConnected, integrationLoading, integration?.ad_account_id, integration?.selected_page_id, fetchCampaignsAndLeads])
+  // Only fetch data when user explicitly selects page/account - no auto-fetching
 
   const handleCreateCampaign = () => {
     const success = createCampaign(newCampaign)
