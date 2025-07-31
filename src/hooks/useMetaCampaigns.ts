@@ -78,7 +78,7 @@ export const useMetaCampaigns = () => {
     }
   }
 
-  const fetchCampaignsAndLeads = async () => {
+  const fetchCampaignsAndLeads = async (pageId?: string, adAccountId?: string) => {
     setLoading(true)
     setError(null)
 
@@ -90,7 +90,12 @@ export const useMetaCampaigns = () => {
 
       const response = await supabase.functions.invoke('fetch-campaigns-and-leads', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: {
+          page_id: pageId,
+          ad_account_id: adAccountId
         }
       })
 
@@ -126,8 +131,8 @@ export const useMetaCampaigns = () => {
     }
   }
 
-  const refreshData = async () => {
-    await fetchCampaignsAndLeads()
+  const refreshData = async (pageId?: string, adAccountId?: string) => {
+    await fetchCampaignsAndLeads(pageId, adAccountId)
   }
 
   useEffect(() => {

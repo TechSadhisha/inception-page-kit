@@ -168,6 +168,25 @@ export const useFacebookIntegration = () => {
     }
   }
 
+  const getAdAccountsForPage = async (pageId: string): Promise<FacebookAdAccount[]> => {
+    if (!integration?.access_token || !pageId) {
+      return []
+    }
+
+    try {
+      const response = await fetch(`https://graph.facebook.com/v20.0/${pageId}/adaccounts?fields=id,name,account_status&access_token=${integration.access_token}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch ad accounts for page')
+      }
+
+      const data = await response.json()
+      return data.data || []
+    } catch (error) {
+      console.error('Error fetching ad accounts for page:', error)
+      return []
+    }
+  }
+
   const updateAdAccount = async (adAccountId: string, adAccountName: string) => {
     if (!user || !integration) return
 
@@ -252,6 +271,7 @@ export const useFacebookIntegration = () => {
     testConnection,
     getAdAccounts,
     getPages,
+    getAdAccountsForPage,
     updateAdAccount,
     updateSelectedPage,
     refreshIntegration: loadIntegration

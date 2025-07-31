@@ -32,6 +32,7 @@ export const FacebookIntegrationSettings = () => {
     testConnection,
     getAdAccounts,
     getPages,
+    getAdAccountsForPage,
     updateAdAccount,
     updateSelectedPage,
     refreshIntegration
@@ -89,10 +90,21 @@ export const FacebookIntegrationSettings = () => {
     }
   }
 
-  const handlePageChange = (value: string) => {
+  const handlePageChange = async (value: string) => {
     const selectedPage = pages.find(page => page.id === value)
     if (selectedPage) {
       updateSelectedPage(selectedPage.id, selectedPage.name, selectedPage.access_token)
+      
+      // Fetch ad accounts for the selected page
+      setLoadingAdAccounts(true)
+      try {
+        const pageAdAccounts = await getAdAccountsForPage(selectedPage.id)
+        setAdAccounts(pageAdAccounts)
+      } catch (error) {
+        console.error('Error fetching ad accounts for page:', error)
+      } finally {
+        setLoadingAdAccounts(false)
+      }
     }
   }
 

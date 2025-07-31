@@ -117,6 +117,10 @@ Deno.serve(async (req) => {
       throw new Error('Authentication failed')
     }
 
+    // Parse request body for parameters
+    const body = req.method === 'POST' ? await req.json() : {}
+    const { page_id, ad_account_id: requestedAdAccountId } = body
+
     // Get the user's Facebook integration
     const { data: integration, error: integrationError } = await supabase
       .from('facebook_integrations')
@@ -129,10 +133,17 @@ Deno.serve(async (req) => {
       throw new Error('Facebook integration not found')
     }
 
-    const { access_token: accessToken, ad_account_id: adAccountId } = integration
+    const { access_token: accessToken } = integration
 
-    if (!accessToken || !adAccountId) {
-      throw new Error('Facebook integration incomplete')
+    if (!accessToken) {
+      throw new Error('Facebook access token not found')
+    }
+
+    // Use requested ad account ID or fall back to stored one
+    const adAccountId = requestedAdAccountId || integration.ad_account_id
+
+    if (!adAccountId) {
+      throw new Error('Ad account ID not specified. Please select a page and ad account first.')
     }
 
     console.log('Fetching campaigns for ad account:', adAccountId)

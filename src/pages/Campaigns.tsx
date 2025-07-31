@@ -6,6 +6,7 @@ import { CampaignAnalytics } from '@/components/campaigns/CampaignAnalytics'
 import { CampaignSettings } from '@/components/campaigns/CampaignSettings'
 import { CampaignSummary } from '@/components/campaigns/CampaignSummary'
 import { LeadsTable } from '@/components/campaigns/LeadsTable'
+import { PageAndAccountSelector } from '@/components/campaigns/PageAndAccountSelector'
 import { useCampaigns } from '@/hooks/useCampaigns'
 import { useCampaignForm } from '@/hooks/useCampaignForm'
 import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
@@ -17,7 +18,7 @@ import { FacebookOAuthButton } from '@/components/campaigns/FacebookOAuthButton'
 const Campaigns = () => {
   const { campaigns, createCampaign, toggleCampaignStatus } = useCampaigns()
   const { newCampaign, setNewCampaign, resetForm } = useCampaignForm()
-  const { isConnected, loading: integrationLoading, refreshIntegration } = useFacebookIntegration()
+  const { integration, isConnected, loading: integrationLoading, refreshIntegration } = useFacebookIntegration()
   const { 
     campaigns: metaCampaigns, 
     leads: metaLeads, 
@@ -30,16 +31,26 @@ const Campaigns = () => {
 
   // Auto-fetch campaigns and leads when Facebook integration changes
   useEffect(() => {
-    if (isConnected && !integrationLoading) {
-      fetchCampaignsAndLeads()
+    if (isConnected && !integrationLoading && integration?.ad_account_id) {
+      fetchCampaignsAndLeads(integration.selected_page_id || undefined, integration.ad_account_id)
     }
-  }, [isConnected, integrationLoading, fetchCampaignsAndLeads])
+  }, [isConnected, integrationLoading, integration?.ad_account_id, integration?.selected_page_id, fetchCampaignsAndLeads])
 
   const handleCreateCampaign = () => {
     const success = createCampaign(newCampaign)
     if (success) {
       resetForm()
       setIsCreateDialogOpen(false)
+    }
+  }
+
+  const handleSelectionComplete = (pageId: string, adAccountId: string) => {
+    fetchCampaignsAndLeads(pageId, adAccountId)
+  }
+
+  const handleRefreshRequested = () => {
+    if (integration?.selected_page_id && integration?.ad_account_id) {
+      fetchCampaignsAndLeads(integration.selected_page_id, integration.ad_account_id)
     }
   }
 
@@ -107,45 +118,59 @@ const Campaigns = () => {
         onCreateCampaign={handleCreateCampaign}
       />
 
-      <CampaignSummary 
-        campaigns={metaCampaigns}
-        leads={metaLeads}
-        summary={summary}
+      <PageAndAccountSelector
+        onSelectionComplete={handleSelectionComplete}
+        onRefreshRequested={handleRefreshRequested}
         loading={metaLoading}
-        onRefresh={refreshMetaData}
       />
 
-      <Tabs defaultValue="leads" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="leads">Leads</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
+      {integration?.selected_page_id && integration?.ad_account_id && (
+        <CampaignSummary 
+          campaigns={metaCampaigns}
+          leads={metaLeads}
+          summary={summary}
+          loading={metaLoading}
+          onRefresh={() => refreshMetaData(integration?.selected_page_id || undefined, integration?.ad_account_id || undefined)}
+        />
+      )}
 
-        <TabsContent value="leads" className="space-y-4">
-          <LeadsTable 
-            leads={metaLeads}
-            campaigns={metaCampaigns}
-            loading={metaLoading}
-          />
-        </TabsContent>
+      {integration?.selected_page_id && integration?.ad_account_id ? (
+        <Tabs defaultValue="leads" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="leads">Leads</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="campaigns" className="space-y-4">
-          <CampaignList
-            campaigns={campaigns}
-            onToggleStatus={toggleCampaignStatus}
-          />
-        </TabsContent>
+          <TabsContent value="leads" className="space-y-4">
+            <LeadsTable 
+              leads={metaLeads}
+              campaigns={metaCampaigns}
+              loading={metaLoading}
+            />
+          </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <CampaignAnalytics campaigns={campaigns} />
-        </TabsContent>
+          <TabsContent value="campaigns" className="space-y-4">
+            <CampaignList
+              campaigns={campaigns}
+              onToggleStatus={toggleCampaignStatus}
+            />
+          </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
-          <CampaignSettings />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="analytics" className="space-y-4">
+            <CampaignAnalytics campaigns={campaigns} />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <CampaignSettings />
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <div className="text-center py-8 text-muted-foreground">
+          Please select a Facebook Page and Ad Account above to view campaigns and leads.
+        </div>
+      )}
     </div>
   )
 }
