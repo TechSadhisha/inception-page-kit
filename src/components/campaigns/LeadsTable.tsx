@@ -155,8 +155,24 @@ export const LeadsTable = ({ leads, campaigns, loading }: LeadsTableProps) => {
 
       <CardContent>
         {filteredLeads.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            {leads.length === 0 ? 'No leads found' : 'No leads match your filters'}
+          <div className="text-center py-8 space-y-4">
+            <div className="text-muted-foreground">
+              {leads.length === 0 ? 'No leads found for this ad account' : 'No leads match your filters'}
+            </div>
+            {leads.length === 0 && (
+              <div className="text-sm text-muted-foreground max-w-md mx-auto">
+                <p className="mb-2">This could be because:</p>
+                <ul className="text-left space-y-1">
+                  <li>• No lead ads have been created yet</li>
+                  <li>• No leads have been generated from your campaigns</li>
+                  <li>• Missing <code className="bg-muted px-1 rounded">leads_retrieval</code> permission</li>
+                  <li>• App needs Facebook review for production lead access</li>
+                </ul>
+                <p className="mt-3 text-xs">
+                  Check your Facebook Business Manager to ensure lead forms are properly configured.
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="rounded-md border">

@@ -148,6 +148,15 @@ Deno.serve(async (req) => {
 
     console.log('Fetching campaigns for ad account:', adAccountId)
 
+    // First, check if we have the necessary permissions
+    let permissionsCheck
+    try {
+      permissionsCheck = await makeMetaApiCall('/me/permissions', accessToken)
+      console.log('User permissions:', permissionsCheck.data?.map((p: any) => p.permission))
+    } catch (permError) {
+      console.warn('Could not check permissions:', permError)
+    }
+
     // Fetch all campaigns
     const campaignsResponse = await makeMetaApiCall(
       `/act_${adAccountId}/campaigns?fields=id,name,status&limit=100`,
@@ -158,15 +167,16 @@ Deno.serve(async (req) => {
     console.log(`Found ${campaigns.length} campaigns`)
 
     const allLeads: ProcessedLead[] = []
+    const errorMessages: string[] = []
 
     // Process each campaign
     for (const campaign of campaigns) {
       console.log(`Processing campaign: ${campaign.name} (${campaign.id})`)
 
       try {
-        // Fetch ads for this campaign
+        // Fetch ads for this campaign with lead form information
         const adsResponse = await makeMetaApiCall(
-          `/${campaign.id}/ads?fields=id,name,adcreatives&limit=100`,
+          `/${campaign.id}/ads?fields=id,name,adcreatives{object_story_spec,leadgen_form_id}&limit=100`,
           accessToken
         )
 
@@ -194,6 +204,13 @@ Deno.serve(async (req) => {
 
                   const leads: FacebookLead[] = leadsResponse.data || []
                   console.log(`Found ${leads.length} leads for form ${leadFormId}`)
+                  
+                  if (leads.length === 0) {
+                    console.log(`No leads found for form ${leadFormId} - this could be due to:`)
+                    console.log('1. No leads have been generated yet')
+                    console.log('2. Missing leads_retrieval permission')
+                    console.log('3. App not approved for leads_retrieval in production')
+                  }
 
                   // Process each lead
                   for (const lead of leads) {
@@ -215,6 +232,12 @@ Deno.serve(async (req) => {
                   }
                 } catch (leadError) {
                   console.error(`Error fetching leads for form ${leadFormId}:`, leadError)
+                  const errorMsg = leadError instanceof Error ? leadError.message : 'Unknown error'
+                  if (errorMsg.includes('permission') || errorMsg.includes('access')) {
+                    errorMessages.push(`Permission denied for lead form ${leadFormId}. Check leads_retrieval permission.`)
+                  } else {
+                    errorMessages.push(`Error fetching leads for form ${leadFormId}: ${errorMsg}`)
+                  }
                 }
               }
             }
@@ -268,6 +291,12 @@ Deno.serve(async (req) => {
       await supabase.from('meta_leads').insert(leadRecords)
     }
 
+    // Provide helpful feedback if no leads were found
+    let statusMessage = ''
+    if (allLeads.length === 0 && campaigns.length > 0) {
+      statusMessage = 'No leads found. This could be because: 1) No lead ads have been created, 2) No leads have been generated yet, 3) Missing leads_retrieval permission, or 4) App needs Facebook review for production use.'
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -277,7 +306,10 @@ Deno.serve(async (req) => {
           total_campaigns: campaigns.length,
           total_leads: allLeads.length,
           ad_account_id: adAccountId
-        }
+        },
+        permissions: permissionsCheck?.data?.map((p: any) => p.permission) || [],
+        errors: errorMessages,
+        statusMessage
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
