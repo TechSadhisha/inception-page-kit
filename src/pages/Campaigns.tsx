@@ -30,6 +30,32 @@ const Campaigns = () => {
   } = useMetaCampaigns()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
+  // Listen for Facebook auth success and clear data events
+  useEffect(() => {
+    const handleAuthSuccess = () => {
+      // Clear all old data and reload integration
+      refreshIntegration()
+    }
+    
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
+        handleAuthSuccess()
+      }
+    }
+    
+    window.addEventListener('message', handleMessage)
+    
+    // Check URL params for auth success
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('auth') === 'success') {
+      handleAuthSuccess()
+      // Clean URL
+      window.history.replaceState({}, '', '/campaigns')
+    }
+    
+    return () => window.removeEventListener('message', handleMessage)
+  }, [refreshIntegration])
+
   // Only fetch data when user explicitly selects page/account - no auto-fetching
 
   const handleCreateCampaign = () => {
@@ -82,7 +108,8 @@ const Campaigns = () => {
             <div className="flex items-center gap-2">
               <FacebookOAuthButton 
                 onSuccess={() => {
-                  // Integration will be automatically detected and page will re-render
+                  // Integration will be automatically detected and page will refresh
+                  refreshIntegration()
                 }}
                 onError={(error) => console.error('OAuth error:', error)}
               />

@@ -44,6 +44,16 @@ export const useMetaCampaigns = () => {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
+  // Listen for clear campaign data events
+  useEffect(() => {
+    const handleClearData = () => {
+      clearCampaignData()
+    }
+    
+    window.addEventListener('clearCampaignData', handleClearData)
+    return () => window.removeEventListener('clearCampaignData', handleClearData)
+  }, [])
+
   const clearCampaignData = () => {
     setCampaigns([])
     setLeads([])

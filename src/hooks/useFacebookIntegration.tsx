@@ -105,11 +105,28 @@ export const useFacebookIntegration = () => {
         throw new Error(response.data?.error || 'Failed to disconnect')
       }
 
+      // Clear all Facebook-related data
       setIntegration(null)
+      
+      // Clear local storage
+      localStorage.removeItem('facebook_integration')
+      localStorage.removeItem('facebook_campaigns')
+      localStorage.removeItem('facebook_leads')
+      
+      // Clear session storage
+      sessionStorage.removeItem('facebook_data')
+      sessionStorage.removeItem('campaign_data')
+      
+      // Trigger custom event to clear campaign state
+      window.dispatchEvent(new CustomEvent('clearCampaignData'))
+      
       toast({
         title: "Disconnected",
         description: "Facebook integration has been disconnected successfully"
       })
+      
+      // Refresh the page to clear all state
+      setTimeout(() => window.location.reload(), 1000)
     } catch (error) {
       console.error('Error disconnecting Facebook:', error)
       toast({
@@ -219,6 +236,14 @@ export const useFacebookIntegration = () => {
 
       if (error) throw error
 
+      // Clear old campaign/lead data when ad account changes
+      localStorage.removeItem('facebook_campaigns')
+      localStorage.removeItem('facebook_leads')
+      sessionStorage.removeItem('campaign_data')
+      
+      // Trigger custom event to clear campaign state
+      window.dispatchEvent(new CustomEvent('clearCampaignData'))
+
       setIntegration(prev => prev ? {
         ...prev,
         ad_account_id: adAccountId,
@@ -253,6 +278,14 @@ export const useFacebookIntegration = () => {
         .eq('user_id', integration.user_id)
 
       if (error) throw error
+
+      // Clear old campaign/lead data when page changes
+      localStorage.removeItem('facebook_campaigns')
+      localStorage.removeItem('facebook_leads')
+      sessionStorage.removeItem('campaign_data')
+      
+      // Trigger custom event to clear campaign state
+      window.dispatchEvent(new CustomEvent('clearCampaignData'))
 
       setIntegration(prev => prev ? {
         ...prev,
