@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CampaignHeader } from '@/components/campaigns/CampaignHeader'
 import { CampaignList } from '@/components/campaigns/CampaignList'
 import { CampaignAnalytics } from '@/components/campaigns/CampaignAnalytics'
 import { CampaignSettings } from '@/components/campaigns/CampaignSettings'
+import { CampaignSummary } from '@/components/campaigns/CampaignSummary'
+import { LeadsTable } from '@/components/campaigns/LeadsTable'
 import { useCampaigns } from '@/hooks/useCampaigns'
 import { useCampaignForm } from '@/hooks/useCampaignForm'
 import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
+import { useMetaCampaigns } from '@/hooks/useMetaCampaigns'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, Facebook } from 'lucide-react'
 import { FacebookOAuthButton } from '@/components/campaigns/FacebookOAuthButton'
@@ -14,8 +17,23 @@ import { FacebookOAuthButton } from '@/components/campaigns/FacebookOAuthButton'
 const Campaigns = () => {
   const { campaigns, createCampaign, toggleCampaignStatus } = useCampaigns()
   const { newCampaign, setNewCampaign, resetForm } = useCampaignForm()
-  const { isConnected, loading: integrationLoading } = useFacebookIntegration()
+  const { isConnected, loading: integrationLoading, refreshIntegration } = useFacebookIntegration()
+  const { 
+    campaigns: metaCampaigns, 
+    leads: metaLeads, 
+    summary, 
+    loading: metaLoading, 
+    fetchCampaignsAndLeads,
+    refreshData: refreshMetaData 
+  } = useMetaCampaigns()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+
+  // Auto-fetch campaigns and leads when Facebook integration changes
+  useEffect(() => {
+    if (isConnected && !integrationLoading) {
+      fetchCampaignsAndLeads()
+    }
+  }, [isConnected, integrationLoading, fetchCampaignsAndLeads])
 
   const handleCreateCampaign = () => {
     const success = createCampaign(newCampaign)
@@ -89,12 +107,29 @@ const Campaigns = () => {
         onCreateCampaign={handleCreateCampaign}
       />
 
-      <Tabs defaultValue="campaigns" className="space-y-4">
+      <CampaignSummary 
+        campaigns={metaCampaigns}
+        leads={metaLeads}
+        summary={summary}
+        loading={metaLoading}
+        onRefresh={refreshMetaData}
+      />
+
+      <Tabs defaultValue="leads" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="campaigns">All Campaigns</TabsTrigger>
+          <TabsTrigger value="leads">Leads</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="leads" className="space-y-4">
+          <LeadsTable 
+            leads={metaLeads}
+            campaigns={metaCampaigns}
+            loading={metaLoading}
+          />
+        </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-4">
           <CampaignList
