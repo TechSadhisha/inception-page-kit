@@ -69,8 +69,8 @@ export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsPro
         campaign.name,
         campaign.status,
         campaign.ad_account_id,
-        format(new Date(campaign.created_at), 'yyyy-MM-dd HH:mm:ss'),
-        format(new Date(campaign.updated_at), 'yyyy-MM-dd HH:mm:ss')
+        campaign.created_at ? format(new Date(campaign.created_at), 'yyyy-MM-dd HH:mm:ss') : 'N/A',
+        campaign.updated_at ? format(new Date(campaign.updated_at), 'yyyy-MM-dd HH:mm:ss') : 'N/A'
       ].map(field => `"${field}"`).join(','))
     ].join('\n')
 
@@ -141,10 +141,10 @@ export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsPro
                         {campaign.ad_account_id}
                       </TableCell>
                       <TableCell>
-                        {format(new Date(campaign.created_at), 'MMM dd, yyyy')}
+                        {campaign.created_at ? format(new Date(campaign.created_at), 'MMM dd, yyyy') : 'N/A'}
                       </TableCell>
                       <TableCell>
-                        {format(new Date(campaign.updated_at), 'MMM dd, yyyy')}
+                        {campaign.updated_at ? format(new Date(campaign.updated_at), 'MMM dd, yyyy') : 'N/A'}
                       </TableCell>
                     </TableRow>
                   ))}
