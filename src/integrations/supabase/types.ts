@@ -733,41 +733,56 @@ export type Database = {
       prospects: {
         Row: {
           assigned_to: string | null
+          conversion_date: string | null
           created_at: string | null
           email: string | null
           id: string
           interest_rating: number | null
+          last_contacted_at: string | null
+          lead_score: number | null
           name: string
           notes: string | null
           phone: string | null
           project_id: string
+          source: string | null
           status: string | null
+          tags: string[] | null
           updated_at: string | null
         }
         Insert: {
           assigned_to?: string | null
+          conversion_date?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
           interest_rating?: number | null
+          last_contacted_at?: string | null
+          lead_score?: number | null
           name: string
           notes?: string | null
           phone?: string | null
           project_id: string
+          source?: string | null
           status?: string | null
+          tags?: string[] | null
           updated_at?: string | null
         }
         Update: {
           assigned_to?: string | null
+          conversion_date?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
           interest_rating?: number | null
+          last_contacted_at?: string | null
+          lead_score?: number | null
           name?: string
           notes?: string | null
           phone?: string | null
           project_id?: string
+          source?: string | null
           status?: string | null
+          tags?: string[] | null
           updated_at?: string | null
         }
         Relationships: [
