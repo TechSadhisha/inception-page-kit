@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
       token_expires_at: tokenExpiresAt ? tokenExpiresAt.toISOString() : null,
       ad_account_id: adAccounts.length > 0 ? adAccounts[0].id : null,
       ad_account_name: adAccounts.length > 0 ? adAccounts[0].name : null,
-      permissions: ['ads_management', 'ads_read', 'business_management'],
+      permissions: ['ads_management', 'ads_read', 'business_management', 'leads_retrieval', 'pages_manage_ads', 'read_insights'],
       is_active: true,
     };
 

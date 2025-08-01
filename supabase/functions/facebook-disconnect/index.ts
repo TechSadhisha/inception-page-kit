@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
 
     // Set the auth token
     const token = authHeader.substring(7);
-    await supabase.auth.setSession({
+    supabase.auth.setSession({
       access_token: token,
       refresh_token: '',
     });
@@ -69,6 +69,23 @@ Deno.serve(async (req) => {
         }
       );
     }
+
+    // Delete all Facebook-related campaign and lead data
+    const deleteOperations = [
+      supabase.from('meta_campaigns').delete().eq('user_id', user.id),
+      supabase.from('meta_leads').delete().eq('user_id', user.id),
+      supabase.from('campaign_settings').delete().eq('user_id', user.id)
+    ];
+
+    const deleteResults = await Promise.allSettled(deleteOperations);
+    
+    // Log any delete errors but don't fail the operation
+    deleteResults.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const tables = ['meta_campaigns', 'meta_leads', 'campaign_settings'];
+        console.error(`Error deleting from ${tables[index]}:`, result.reason);
+      }
+    });
 
     console.log('Facebook integration disconnected for user:', user.id);
 

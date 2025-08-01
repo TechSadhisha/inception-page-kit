@@ -374,6 +374,96 @@ export type Database = {
           },
         ]
       }
+      meta_campaigns: {
+        Row: {
+          ad_account_id: string
+          campaign_id: string
+          created_at: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_account_id: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          name: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_account_id?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meta_leads: {
+        Row: {
+          ad_id: string
+          ad_name: string
+          campaign_id: string
+          campaign_name: string
+          campaign_status: string
+          created_at: string
+          created_time: string
+          email: string | null
+          id: string
+          lead_form_id: string
+          lead_id: string
+          name: string | null
+          phone: string | null
+          raw_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          ad_name: string
+          campaign_id: string
+          campaign_name: string
+          campaign_status: string
+          created_at?: string
+          created_time: string
+          email?: string | null
+          id?: string
+          lead_form_id: string
+          lead_id: string
+          name?: string | null
+          phone?: string | null
+          raw_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          ad_name?: string
+          campaign_id?: string
+          campaign_name?: string
+          campaign_status?: string
+          created_at?: string
+          created_time?: string
+          email?: string | null
+          id?: string
+          lead_form_id?: string
+          lead_id?: string
+          name?: string | null
+          phone?: string | null
+          raw_data?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portal_integrations: {
         Row: {
           config: Json

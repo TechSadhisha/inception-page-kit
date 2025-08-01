@@ -37,9 +37,9 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
 
     setIsLoading(true)
 
-    // Facebook OAuth URL with required permissions
+    // Facebook OAuth URL with enhanced permissions for lead access
     const redirectUri = encodeURIComponent(facebookConfig.redirectUri)
-    const scope = encodeURIComponent('ads_management,ads_read,business_management,pages_show_list,email,public_profile')
+    const scope = encodeURIComponent('leads_retrieval,pages_manage_ads,ads_management,ads_read,business_management,pages_show_list,email,public_profile')
     const state = user.id // Pass user ID as state parameter
     
     const facebookOAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${facebookConfig.appId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&response_type=code`
@@ -59,13 +59,25 @@ export const FacebookOAuthButton = ({ onSuccess, onError }: FacebookOAuthButtonP
 
       if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
         console.log('Facebook OAuth success:', event.data.data)
+        
+        // Clear old data before refreshing
+        localStorage.removeItem('facebook_campaigns')
+        localStorage.removeItem('facebook_leads')
+        sessionStorage.removeItem('campaign_data')
+        
+        // Trigger campaign data clear
+        window.dispatchEvent(new CustomEvent('clearCampaignData'))
+        
         toast({
           title: "Facebook Connected!",
-          description: "Your Facebook account has been connected successfully.",
+          description: "Your Facebook account has been connected successfully. Loading your data...",
         })
         onSuccess?.(event.data.data)
         setIsLoading(false)
         popup?.close()
+        
+        // Refresh the page to load new data
+        setTimeout(() => window.location.reload(), 1000)
       } else if (event.data.type === 'FACEBOOK_AUTH_ERROR') {
         console.error('Facebook OAuth error:', event.data.error)
         toast({
