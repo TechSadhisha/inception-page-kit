@@ -24,6 +24,7 @@ import WhatsApp from '@/pages/WhatsApp'
 import PropertyListings from '@/pages/PropertyListings'
 import WorkflowAutomation from '@/pages/WorkflowAutomation'
 import Integrations from '@/pages/Integrations'
+import LeadCentre from '@/pages/LeadCentre'
 import TermsAndConditions from '@/pages/TermsAndConditions'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import DataDeletion from '@/pages/DataDeletion'
@@ -42,6 +43,7 @@ function App() {
               <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
               <Route path="projects/:projectId/sheets" element={<ProtectedRoute><ProjectSheets /></ProtectedRoute>} />
+              <Route path="projects/:projectId/lead-centre" element={<ProtectedRoute><LeadCentre /></ProtectedRoute>} />
               <Route path="prospects" element={<ProtectedRoute><Prospects /></ProtectedRoute>} />
               <Route path="tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
               <Route path="messages" element={<ProtectedRoute><TeamMessages /></ProtectedRoute>} />

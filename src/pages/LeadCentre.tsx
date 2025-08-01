@@ -14,7 +14,7 @@ import { ManualLeadEntry } from '@/components/leads/ManualLeadEntry'
 import { useProspects } from '@/hooks/useProspects'
 import { useProjects } from '@/hooks/useProjects'
 
-export function LeadCentre() {
+export default function LeadCentre() {
   const { projectId } = useParams<{ projectId: string }>()
   const [activeTab, setActiveTab] = useState('overview')
   const [showManualEntry, setShowManualEntry] = useState(false)
