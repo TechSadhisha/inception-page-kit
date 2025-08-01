@@ -57,12 +57,28 @@ async function makeMetaApiCall(endpoint: string, accessToken: string) {
     }
   })
   
+  const responseText = await response.text()
+  
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(`Meta API Error: ${error.error?.message || 'Unknown error'}`)
+    let errorMessage = 'Unknown error'
+    try {
+      const error = JSON.parse(responseText)
+      errorMessage = error.error?.message || 'Unknown error'
+    } catch {
+      errorMessage = `HTTP ${response.status}: ${responseText || 'No response body'}`
+    }
+    throw new Error(`Meta API Error: ${errorMessage}`)
   }
   
-  return await response.json()
+  if (!responseText) {
+    throw new Error('Empty response from Meta API')
+  }
+  
+  try {
+    return JSON.parse(responseText)
+  } catch (parseError) {
+    throw new Error(`Invalid JSON response from Meta API: ${responseText}`)
+  }
 }
 
 function parseLeadFields(fieldData: Array<{ name: string; values: string[] }>): Record<string, any> {
