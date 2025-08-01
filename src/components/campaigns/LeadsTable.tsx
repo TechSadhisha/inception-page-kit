@@ -28,7 +28,7 @@ export const LeadsTable = ({ leads, campaigns, loading }: LeadsTableProps) => {
   const [campaignFilter, setCampaignFilter] = useState<string>('all')
 
   const getStatusVariant = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'active':
         return 'default'
       case 'paused':
