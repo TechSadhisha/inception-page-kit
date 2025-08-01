@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
 
     // Parse request body for parameters
     const body = req.method === 'POST' ? await req.json() : {}
-    const { page_id, ad_account_id: requestedAdAccountId } = body
+    const { page_id, ad_account_id: requestedAdAccountId, campaign_id: requestedCampaignId } = body
 
     // Get the user's Facebook integration
     const { data: integration, error: integrationError } = await supabase
@@ -157,13 +157,26 @@ Deno.serve(async (req) => {
       console.warn('Could not check permissions:', permError)
     }
 
-    // Fetch all campaigns
-    const campaignsResponse = await makeMetaApiCall(
-      `/act_${adAccountId}/campaigns?fields=id,name,status&limit=100`,
-      accessToken
-    )
-
-    const campaigns: FacebookCampaign[] = campaignsResponse.data || []
+    // Fetch campaigns - either specific campaign or all campaigns for the ad account
+    let campaigns: FacebookCampaign[] = []
+    
+    if (requestedCampaignId) {
+      // Fetch specific campaign
+      console.log('Fetching specific campaign:', requestedCampaignId)
+      const campaignResponse = await makeMetaApiCall(
+        `/${requestedCampaignId}?fields=id,name,status`,
+        accessToken
+      )
+      campaigns = [campaignResponse]
+    } else {
+      // Fetch all campaigns for the ad account
+      const campaignsResponse = await makeMetaApiCall(
+        `/act_${adAccountId}/campaigns?fields=id,name,status&limit=100`,
+        accessToken
+      )
+      campaigns = campaignsResponse.data || []
+    }
+    
     console.log(`Found ${campaigns.length} campaigns`)
 
     const allLeads: ProcessedLead[] = []
@@ -176,7 +189,7 @@ Deno.serve(async (req) => {
       try {
         // Fetch ads for this campaign with lead form information
         const adsResponse = await makeMetaApiCall(
-          `/${campaign.id}/ads?fields=id,name,adcreatives{object_story_spec,leadgen_form_id}&limit=100`,
+          `/${campaign.id}/ads?fields=id,name,adcreatives{object_story_spec}&limit=100`,
           accessToken
         )
 
@@ -294,7 +307,8 @@ Deno.serve(async (req) => {
     // Provide helpful feedback if no leads were found
     let statusMessage = ''
     if (allLeads.length === 0 && campaigns.length > 0) {
-      statusMessage = 'No leads found. This could be because: 1) No lead ads have been created, 2) No leads have been generated yet, 3) Missing leads_retrieval permission, or 4) App needs Facebook review for production use.'
+      const campaignContext = requestedCampaignId ? 'campaign' : 'ad account'
+      statusMessage = `No leads found for this ${campaignContext}. This could be because: 1) No lead ads have been created, 2) No leads have been generated yet, 3) Missing leads_retrieval permission, or 4) App needs Facebook review for production use.`
     }
 
     return new Response(
