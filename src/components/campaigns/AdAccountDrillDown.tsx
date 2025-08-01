@@ -39,8 +39,10 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
   // Clear leads data when selections change
   const clearLeadsData = () => {
     onLeadsDataReady({
+      campaigns: [],
       leads: [],
-      total_leads: 0
+      total_leads: 0,
+      summary: null
     })
   }
 
@@ -114,8 +116,10 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
       if (error) throw error
 
       onLeadsDataReady({
+        campaigns: [{ id: campaignId, name: campaigns.find(c => c.id === campaignId)?.name || 'Selected Campaign' }],
         leads: data.leads || [],
-        total_leads: data.total_leads || 0
+        total_leads: data.total_leads || 0,
+        summary: { total_campaigns: 1, total_leads: data.total_leads || 0 }
       })
 
       toast({
