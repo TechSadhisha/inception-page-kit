@@ -119,13 +119,13 @@ export const FacebookOfficialLogin = ({ onLoginSuccess, onLoginError }: Facebook
           data-layout="default"
           data-auto-logout-link="false"
           data-use-continue-as="false"
-          data-scope="public_profile,email,ads_management,ads_read,business_management,pages_show_list"
+          data-scope="public_profile,email,ads_management,ads_read,business_management,pages_show_list,leads_retrieval"
           data-onlogin="checkLoginState();"
         ></div>
       </div>
       
       <div className="text-xs text-muted-foreground">
-        <p>Required permissions: ads_management, ads_read, business_management, pages_show_list</p>
+        <p>Required permissions: ads_management, ads_read, business_management, pages_show_list, leads_retrieval</p>
       </div>
     </div>
   )
