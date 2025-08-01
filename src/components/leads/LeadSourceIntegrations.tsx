@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Globe, Settings, RefreshCw, Plus, Facebook, Mail, CheckCircle, AlertCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
+import { useMetaCampaigns } from '@/hooks/useMetaCampaigns'
+import { useProspects } from '@/hooks/useProspects'
 
 interface LeadSourceIntegrationsProps {
   projectId?: string
@@ -30,7 +33,26 @@ interface LeadSource {
 export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProps) {
   const { toast } = useToast()
   const [showConfig, setShowConfig] = useState<string | null>(null)
+  const { integration, isConnected } = useFacebookIntegration()
+  const { leads: metaLeads, campaigns, loading: metaLoading, loadCachedData, fetchCampaignsAndLeads } = useMetaCampaigns()
+  const { prospects, createBulkProspects } = useProspects(projectId)
   
+  // Load cached Facebook data on mount
+  useEffect(() => {
+    if (isConnected) {
+      loadCachedData()
+    }
+  }, [isConnected, loadCachedData])
+
+  // Calculate Facebook lead stats
+  const facebookTotalLeads = metaLeads?.length || 0
+  const recentLeads = metaLeads?.filter(lead => {
+    const leadDate = new Date(lead.created_time)
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    return leadDate > yesterday
+  }).length || 0
+
   const [sources, setSources] = useState<LeadSource[]>([
     {
       id: '99acres',
@@ -64,27 +86,6 @@ export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProp
       newLeads: 0
     },
     {
-      id: 'facebook',
-      name: 'Facebook Lead Ads',
-      type: 'social',
-      icon: <Facebook className="h-5 w-5" />,
-      status: 'connected',
-      enabled: true,
-      totalLeads: 67,
-      newLeads: 5,
-      lastSync: '1 hour ago'
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram Lead Ads',
-      type: 'social',
-      icon: <Facebook className="h-5 w-5" />,
-      status: 'disconnected',
-      enabled: false,
-      totalLeads: 0,
-      newLeads: 0
-    },
-    {
       id: 'email',
       name: 'Email Parsing',
       type: 'email',
@@ -95,6 +96,19 @@ export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProp
       newLeads: 0
     }
   ])
+
+  // Dynamic Facebook source based on real data
+  const facebookSource: LeadSource = {
+    id: 'facebook',
+    name: 'Facebook Lead Ads',
+    type: 'social',
+    icon: <Facebook className="h-5 w-5" />,
+    status: isConnected ? 'connected' : 'disconnected',
+    enabled: isConnected,
+    totalLeads: facebookTotalLeads,
+    newLeads: recentLeads,
+    lastSync: metaLeads?.length > 0 ? 'Recently synced' : undefined
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -127,25 +141,73 @@ export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProp
     })
   }
 
-  const handleSync = (sourceId: string) => {
-    const source = sources.find(s => s.id === sourceId)
-    toast({
-      title: "Syncing leads",
-      description: `Starting sync for ${source?.name}...`,
-    })
-    
-    // Simulate sync
-    setTimeout(() => {
-      setSources(prev => prev.map(s => 
-        s.id === sourceId 
-          ? { ...s, lastSync: 'Just now', newLeads: s.newLeads + Math.floor(Math.random() * 5) }
-          : s
-      ))
+  const handleSync = async (sourceId: string) => {
+    if (sourceId === 'facebook') {
+      if (!isConnected || !integration) {
+        toast({
+          title: "Facebook not connected",
+          description: "Please connect Facebook first in the Campaigns page",
+          variant: "destructive",
+        })
+        return
+      }
+
       toast({
-        title: "Sync completed",
-        description: `Successfully synced leads from ${source?.name}`,
+        title: "Syncing Facebook leads",
+        description: "Fetching latest leads from Facebook...",
       })
-    }, 2000)
+
+      try {
+        await fetchCampaignsAndLeads(integration.selected_page_id || undefined, integration.ad_account_id || undefined)
+        
+        // Import Facebook leads as prospects to this project
+        if (metaLeads && metaLeads.length > 0 && projectId) {
+          const leadProspects = metaLeads.map(lead => ({
+            project_id: projectId,
+            name: lead.name || 'Facebook Lead',
+            email: lead.email || undefined,
+            phone: lead.phone || undefined,
+            source: 'facebook',
+            status: 'new' as const,
+            notes: `Lead from Facebook campaign: ${lead.campaign_name}`,
+            tags: ['facebook', 'lead-ads']
+          }))
+
+          await createBulkProspects(leadProspects)
+          
+          toast({
+            title: "Sync completed",
+            description: `Successfully imported ${metaLeads.length} Facebook leads to project`,
+          })
+        }
+      } catch (error) {
+        toast({
+          title: "Sync failed",
+          description: "Failed to sync Facebook leads. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // Handle other source syncing
+      const source = sources.find(s => s.id === sourceId)
+      toast({
+        title: "Syncing leads",
+        description: `Starting sync for ${source?.name}...`,
+      })
+      
+      // Simulate sync for other sources
+      setTimeout(() => {
+        setSources(prev => prev.map(s => 
+          s.id === sourceId 
+            ? { ...s, lastSync: 'Just now', newLeads: s.newLeads + Math.floor(Math.random() * 5) }
+            : s
+        ))
+        toast({
+          title: "Sync completed",
+          description: `Successfully synced leads from ${source?.name}`,
+        })
+      }, 2000)
+    }
   }
 
   const handleConnect = (sourceId: string) => {
@@ -261,7 +323,7 @@ export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProp
   )
 
   const portalSources = sources.filter(s => s.type === 'portal')
-  const socialSources = sources.filter(s => s.type === 'social')
+  const socialSources = [facebookSource, ...sources.filter(s => s.type === 'social')]
   const otherSources = sources.filter(s => !['portal', 'social'].includes(s.type))
 
   return (
@@ -312,25 +374,25 @@ export function LeadSourceIntegrations({ projectId }: LeadSourceIntegrationsProp
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-green-600">
-                {sources.filter(s => s.status === 'connected').length}
+                {sources.filter(s => s.status === 'connected').length + (facebookSource.status === 'connected' ? 1 : 0)}
               </div>
               <div className="text-sm text-muted-foreground">Connected</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-blue-600">
-                {sources.filter(s => s.enabled).length}
+                {sources.filter(s => s.enabled).length + (facebookSource.enabled ? 1 : 0)}
               </div>
               <div className="text-sm text-muted-foreground">Active</div>
             </div>
             <div>
               <div className="text-2xl font-bold">
-                {sources.reduce((sum, s) => sum + s.totalLeads, 0)}
+                {sources.reduce((sum, s) => sum + s.totalLeads, 0) + facebookSource.totalLeads}
               </div>
               <div className="text-sm text-muted-foreground">Total Leads</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-orange-600">
-                {sources.reduce((sum, s) => sum + s.newLeads, 0)}
+                {sources.reduce((sum, s) => sum + s.newLeads, 0) + facebookSource.newLeads}
               </div>
               <div className="text-sm text-muted-foreground">New Today</div>
             </div>
