@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
-import { Loader2, Building, Layers, Target, Users, RefreshCw } from 'lucide-react'
+import { Loader2, Building, Layers, Target, Users, RefreshCw, Unplug, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 
@@ -40,7 +41,7 @@ interface AdAccountDrillDownProps {
 }
 
 export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps) => {
-  const { integration, isConnected, hasValidToken } = useFacebookIntegration()
+  const { integration, isConnected, hasValidToken, disconnect, connecting } = useFacebookIntegration()
   const { toast } = useToast()
   
   const [adAccounts, setAdAccounts] = useState<FacebookAdAccount[]>([])
@@ -246,13 +247,63 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building className="h-5 w-5" />
-          Ad Account Drill Down
-        </CardTitle>
-        <CardDescription>
-          Select Ad Account → Campaign → View Leads (Page selection removed)
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="h-5 w-5" />
+              Ad Account Drill Down
+            </CardTitle>
+            <CardDescription>
+              Select Ad Account → Campaign → View Leads (Page selection removed)
+            </CardDescription>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={connecting}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Unplug className="h-4 w-4 mr-2" />
+                Disconnect
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Disconnect Facebook Account</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently disconnect your Facebook account and remove all associated data including:
+                  <br /><br />
+                  • All campaign data and analytics
+                  <br />
+                  • All lead information and contacts
+                  <br />
+                  • All cached Facebook data
+                  <br />
+                  • Your Facebook access tokens
+                  <br /><br />
+                  This action cannot be undone. You'll need to reconnect and reconfigure everything.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={disconnect}
+                  disabled={connecting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {connecting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Yes, Disconnect
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Ad Account Selection */}
