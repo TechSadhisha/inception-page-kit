@@ -25,6 +25,7 @@ import PropertyListings from '@/pages/PropertyListings'
 import WorkflowAutomation from '@/pages/WorkflowAutomation'
 import Integrations from '@/pages/Integrations'
 import LeadCentre from '@/pages/LeadCentre'
+import UserManual from '@/pages/UserManual'
 import TermsAndConditions from '@/pages/TermsAndConditions'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import DataDeletion from '@/pages/DataDeletion'
@@ -58,6 +59,7 @@ function App() {
               <Route path="properties" element={<ProtectedRoute><PropertyListings /></ProtectedRoute>} />
               <Route path="workflows" element={<ProtectedRoute><WorkflowAutomation /></ProtectedRoute>} />
               <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+              <Route path="manual" element={<ProtectedRoute><UserManual /></ProtectedRoute>} />
             </Route>
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
