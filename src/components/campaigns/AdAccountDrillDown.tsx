@@ -207,6 +207,10 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
   const handleCampaignChange = (campaignId: string) => {
     setSelectedCampaignId(campaignId)
     fetchAds(campaignId)
+    // Automatically fetch leads when campaign is selected
+    setTimeout(() => {
+      fetchLeadsForAllAds()
+    }, 500) // Small delay to let ads load first
   }
 
   const handleAdChange = (adId: string) => {
