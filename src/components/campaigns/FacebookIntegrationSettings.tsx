@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { FacebookOAuthButton } from './FacebookOAuthButton'
 import { useFacebookIntegration } from '@/hooks/useFacebookIntegration'
-import { CheckCircle, XCircle, Loader2, AlertCircle, Users, Building } from 'lucide-react'
+import { CheckCircle, XCircle, Loader2, AlertCircle, Users, Building, Trash2 } from 'lucide-react'
 
 interface FacebookAdAccount {
   id: string
@@ -314,16 +315,50 @@ export const FacebookIntegrationSettings = () => {
 
         {/* Disconnect Button */}
         <div className="flex justify-end pt-4 border-t">
-          <Button
-            variant="destructive"
-            onClick={disconnect}
-            disabled={connecting}
-          >
-            {connecting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            Disconnect Facebook
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                disabled={connecting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Disconnect Facebook
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Disconnect Facebook Account</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently disconnect your Facebook account and remove all associated data including:
+                  <br /><br />
+                  • All campaign data and analytics
+                  <br />
+                  • All lead information and contacts
+                  <br />
+                  • All cached Facebook data
+                  <br />
+                  • Your Facebook access tokens
+                  <br /><br />
+                  This action cannot be undone. You'll need to reconnect and reconfigure everything.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={disconnect}
+                  disabled={connecting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {connecting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Yes, Disconnect
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>

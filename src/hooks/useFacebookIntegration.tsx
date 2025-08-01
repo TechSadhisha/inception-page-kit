@@ -105,32 +105,72 @@ export const useFacebookIntegration = () => {
         throw new Error(response.data?.error || 'Failed to disconnect')
       }
 
-      // Clear all Facebook-related data
+      // Clear all Facebook-related data from state
       setIntegration(null)
       
-      // Clear local storage
-      localStorage.removeItem('facebook_integration')
-      localStorage.removeItem('facebook_campaigns')
-      localStorage.removeItem('facebook_leads')
+      // Clear comprehensive list of cached data
+      const fbStorageKeys = [
+        'facebook_integration',
+        'facebook_campaigns', 
+        'facebook_leads',
+        'facebook_ad_accounts',
+        'facebook_pages',
+        'meta_campaigns',
+        'meta_leads',
+        'campaign_analytics',
+        'lead_forms',
+        'facebook_user_data',
+        'selected_ad_account',
+        'selected_page'
+      ]
       
-      // Clear session storage
-      sessionStorage.removeItem('facebook_data')
-      sessionStorage.removeItem('campaign_data')
-      
-      // Trigger custom event to clear campaign state
-      window.dispatchEvent(new CustomEvent('clearCampaignData'))
-      
-      toast({
-        title: "Disconnected",
-        description: "Facebook integration has been disconnected successfully"
+      // Clear localStorage
+      fbStorageKeys.forEach(key => {
+        localStorage.removeItem(key)
       })
       
-      // Refresh the page to clear all state
-      setTimeout(() => window.location.reload(), 1000)
+      // Clear sessionStorage
+      const sessionKeys = [
+        'facebook_data',
+        'campaign_data',
+        'lead_data',
+        'ad_account_data',
+        'page_data'
+      ]
+      
+      sessionKeys.forEach(key => {
+        sessionStorage.removeItem(key)
+      })
+      
+      // Clear any IndexedDB data (if using)
+      try {
+        if ('indexedDB' in window) {
+          const dbName = 'facebook_crm_cache'
+          indexedDB.deleteDatabase(dbName)
+        }
+      } catch (e) {
+        console.log('IndexedDB cleanup not needed')
+      }
+      
+      // Dispatch comprehensive clearing events
+      window.dispatchEvent(new CustomEvent('clearCampaignData'))
+      window.dispatchEvent(new CustomEvent('clearLeadData'))
+      window.dispatchEvent(new CustomEvent('clearFacebookData'))
+      window.dispatchEvent(new CustomEvent('facebookDisconnected'))
+      
+      toast({
+        title: "Successfully Disconnected",
+        description: "Facebook integration and all associated data have been removed"
+      })
+      
+      // Force a complete refresh to ensure clean state
+      setTimeout(() => {
+        window.location.href = '/campaigns'
+      }, 1500)
     } catch (error) {
       console.error('Error disconnecting Facebook:', error)
       toast({
-        title: "Error",
+        title: "Disconnect Failed",
         description: error instanceof Error ? error.message : "Failed to disconnect Facebook integration",
         variant: "destructive"
       })
