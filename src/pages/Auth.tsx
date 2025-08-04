@@ -170,25 +170,6 @@ const Auth = () => {
     }
 
     try {
-      // Check if there's a valid invitation for this email
-      const { data: invitation, error: invitationError } = await supabase
-        .from('user_invitations')
-        .select('*')
-        .eq('email', signupData.email)
-        .eq('used', false)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-
-      if (invitationError || !invitation) {
-        toast({
-          title: 'Signup Not Allowed',
-          description: 'You need a valid invitation to sign up. Please contact an administrator.',
-          variant: 'destructive',
-        });
-        setIsLoading(false);
-        return;
-      }
-
       const redirectUrl = `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signUp({
@@ -217,12 +198,6 @@ const Auth = () => {
           });
         }
       } else {
-        // Mark invitation as used
-        await supabase
-          .from('user_invitations')
-          .update({ used: true })
-          .eq('id', invitation.id);
-
         toast({
           title: 'Account Created!',
           description: 'Please check your email to verify your account before signing in.',
@@ -464,7 +439,7 @@ const Auth = () => {
           <CardHeader>
             <CardTitle className="text-center">Welcome</CardTitle>
             <CardDescription className="text-center">
-              Sign in to your account or create one with an invitation
+              Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -515,12 +490,6 @@ const Auth = () => {
               </TabsContent>
               
               <TabsContent value="signup">
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> You need a valid invitation to create an account. 
-                    Contact an administrator if you don't have one.
-                  </p>
-                </div>
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
@@ -538,7 +507,7 @@ const Auth = () => {
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="Enter your invited email"
+                      placeholder="Enter your email address"
                       value={signupData.email}
                       onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
                       required
