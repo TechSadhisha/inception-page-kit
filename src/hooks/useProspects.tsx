@@ -121,10 +121,12 @@ export const useProspects = (projectId?: string) => {
   // Update prospect mutation
   const updateProspectMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProspectUpdate }) => {
-      // Transform the updates data for database
-      const dbUpdates = {
-        ...updates,
-        follow_ups: updates.follow_ups ? JSON.stringify(updates.follow_ups) : undefined
+      // Transform the updates data for database - handle follow_ups carefully
+      const dbUpdates: any = { ...updates }
+      
+      // Only stringify follow_ups if it exists and is an array
+      if (updates.follow_ups && Array.isArray(updates.follow_ups)) {
+        dbUpdates.follow_ups = updates.follow_ups
       }
       
       const { data, error } = await supabase
@@ -139,7 +141,8 @@ export const useProspects = (projectId?: string) => {
       // Transform back to our interface
       return {
         ...data,
-        follow_ups: data.follow_ups ? JSON.parse(data.follow_ups as string) : [],
+        follow_ups: Array.isArray(data.follow_ups) ? data.follow_ups : 
+                   typeof data.follow_ups === 'string' ? JSON.parse(data.follow_ups) : [],
         date_added: data.date_added || data.created_at,
       } as Prospect
     },
