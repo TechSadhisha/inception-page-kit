@@ -120,86 +120,30 @@ export function LeadList({ projectId, leads = [] }: LeadListProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Interest</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="w-16">S.No</TableHead>
+                  <TableHead>Lead Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Campaign Name</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLeads.map((lead) => (
+                {filteredLeads.map((lead, index) => (
                   <TableRow key={lead.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{lead.name}</div>
-                        {lead.notes && (
-                          <div className="text-sm text-muted-foreground truncate max-w-xs">
-                            {lead.notes}
-                          </div>
-                        )}
-                      </div>
+                    <TableCell className="font-medium">
+                      {index + 1}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {lead.name}
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1">
-                        {lead.email && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Mail className="h-3 w-3" />
-                            {lead.email}
-                          </div>
-                        )}
-                        {lead.phone && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Phone className="h-3 w-3" />
-                            {lead.phone}
-                          </div>
-                        )}
-                      </div>
+                      {lead.email || '-'}
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusBadge(lead.status)}>
-                        {lead.status}
-                      </Badge>
+                      {lead.phone || '-'}
                     </TableCell>
                     <TableCell>
-                      {lead.interest_rating && (
-                        <div className="flex items-center gap-1">
-                          <div className="text-sm font-medium">{lead.interest_rating}/5</div>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <div
-                                key={i}
-                                className={`w-2 h-2 rounded-full mr-1 ${
-                                  i < lead.interest_rating! ? 'bg-yellow-400' : 'bg-gray-200'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(lead.created_at).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Lead</DropdownMenuItem>
-                          <DropdownMenuItem>Assign to Team</DropdownMenuItem>
-                          <DropdownMenuItem>Send Message</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {lead.source || '-'}
                     </TableCell>
                   </TableRow>
                 ))}
