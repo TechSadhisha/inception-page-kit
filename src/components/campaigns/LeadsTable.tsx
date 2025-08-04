@@ -198,7 +198,7 @@ export const LeadsTable = ({ leads, campaigns, loading }: LeadsTableProps) => {
                     <TableCell>{lead.email || '-'}</TableCell>
                     <TableCell>{lead.phone || '-'}</TableCell>
                     <TableCell>
-                      {lead.campaign_name}
+                      {lead.campaign_name || '-'}
                     </TableCell>
                   </TableRow>
                 ))}
