@@ -340,7 +340,7 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
               Edit
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl" onPointerDownOutside={handleDialogClose}>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Manage Follow-ups - {lead.name}</DialogTitle>
             </DialogHeader>
@@ -378,8 +378,14 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                       <Label>Notes</Label>
                       <Input
                         value={followUp.notes || ''}
-                        onChange={(e) => updateFollowUp(index, 'notes', e.target.value)}
+                        onChange={(e) => {
+                          e.stopPropagation()
+                          updateFollowUp(index, 'notes', e.target.value)
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
                         placeholder="Optional notes..."
+                        className="w-full"
                       />
                     </div>
                     <Button
