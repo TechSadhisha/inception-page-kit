@@ -303,6 +303,22 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
 
   const FollowUpCell = ({ lead }: { lead: Prospect }) => {
     const followUps = lead.follow_ups || []
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    const handleEditClick = () => {
+      handleFollowUpEdit(lead.id, followUps)
+      setIsDialogOpen(true)
+    }
+
+    const handleSaveAndClose = async () => {
+      await handleFollowUpSave()
+      setIsDialogOpen(false)
+    }
+
+    const handleDialogClose = () => {
+      setEditingFollowUps(null)
+      setIsDialogOpen(false)
+    }
 
     return (
       <div className="space-y-1">
@@ -316,25 +332,25 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
         ) : (
           <span className="text-muted-foreground text-xs">—</span>
         )}
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
               size="sm"
               variant="outline"
               className="h-6 text-xs"
-              onClick={() => handleFollowUpEdit(lead.id, followUps)}
+              onClick={handleEditClick}
             >
               Edit
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl" onPointerDownOutside={handleDialogClose}>
             <DialogHeader>
               <DialogTitle>Manage Follow-ups - {lead.name}</DialogTitle>
             </DialogHeader>
             {editingFollowUps && editingFollowUps.leadId === lead.id && (
               <div className="space-y-4">
                 {editingFollowUps.followUps.map((followUp, index) => (
-                  <div key={index} className="grid grid-cols-3 gap-4 items-center border p-4 rounded">
+                  <div key={index} className="grid grid-cols-4 gap-4 items-end border p-4 rounded">
                     <div>
                       <Label>Date</Label>
                       <Input
@@ -361,11 +377,18 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                         </SelectContent>
                       </Select>
                     </div>
+                    <div>
+                      <Label>Notes</Label>
+                      <Input
+                        value={followUp.notes || ''}
+                        onChange={(e) => updateFollowUp(index, 'notes', e.target.value)}
+                        placeholder="Optional notes..."
+                      />
+                    </div>
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => removeFollowUp(index)}
-                      className="mt-6"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -376,8 +399,11 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                     <Plus className="h-4 w-4 mr-2" />
                     Add Follow-up
                   </Button>
-                  <Button size="sm" onClick={handleFollowUpSave}>
+                  <Button size="sm" onClick={handleSaveAndClose}>
                     Save Changes
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={handleDialogClose}>
+                    Cancel
                   </Button>
                 </div>
               </div>
