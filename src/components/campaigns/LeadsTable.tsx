@@ -179,36 +179,26 @@ export const LeadsTable = ({ leads, campaigns, loading }: LeadsTableProps) => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-16">S.No</TableHead>
                   <TableHead>Lead Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Campaign</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Ad Name</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Campaign Name</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLeads.map((lead) => (
+                {filteredLeads.map((lead, index) => (
                   <TableRow key={lead.id}>
                     <TableCell className="font-medium">
-                      {lead.name || 'N/A'}
+                      {index + 1}
                     </TableCell>
-                    <TableCell>{lead.email || 'N/A'}</TableCell>
-                    <TableCell>{lead.phone || 'N/A'}</TableCell>
-                    <TableCell className="max-w-xs truncate">
+                    <TableCell className="font-medium">
+                      {lead.name || '-'}
+                    </TableCell>
+                    <TableCell>{lead.email || '-'}</TableCell>
+                    <TableCell>{lead.phone || '-'}</TableCell>
+                    <TableCell>
                       {lead.campaign_name}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(lead.campaign_status)}>
-                        {lead.campaign_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {lead.ad_name}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(lead.created_time), 'MMM dd, yyyy HH:mm')}
                     </TableCell>
                   </TableRow>
                 ))}
