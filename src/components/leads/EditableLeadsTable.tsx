@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { format } from 'date-fns'
 import { Calendar, ChevronDown, Plus, X, Save, Download, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -45,6 +45,62 @@ const statusOptions = [
 const followUpStatusOptions = [
   'contacted', 'no_response', 'meeting_scheduled', 'callback_requested', 'not_interested', 'follow_up_later'
 ]
+
+// Memoized FollowUpRow component to prevent unnecessary re-renders
+const FollowUpRow = memo(({ followUp, index, onUpdate, onRemove }: {
+  followUp: FollowUp
+  index: number
+  onUpdate: (index: number, field: keyof FollowUp, value: string) => void
+  onRemove: (index: number) => void
+}) => {
+  return (
+    <div className="grid grid-cols-4 gap-4 items-end border p-4 rounded">
+      <div>
+        <Label>Date</Label>
+        <Input
+          type="date"
+          value={followUp.date}
+          onChange={(e) => onUpdate(index, 'date', e.target.value)}
+        />
+      </div>
+      <div>
+        <Label>Status</Label>
+        <Select
+          value={followUp.status}
+          onValueChange={(value) => onUpdate(index, 'status', value)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {followUpStatusOptions.map(status => (
+              <SelectItem key={status} value={status}>
+                {status.replace('_', ' ')}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Notes</Label>
+        <Input
+          value={followUp.notes || ''}
+          onChange={(e) => onUpdate(index, 'notes', e.target.value)}
+          placeholder="Optional notes..."
+          className="w-full"
+          autoComplete="off"
+        />
+      </div>
+      <Button
+        size="sm"
+        variant="destructive"
+        onClick={() => onRemove(index)}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+})
 
 export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }: EditableLeadsTableProps) => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -352,52 +408,13 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
             {editingFollowUps && editingFollowUps.leadId === lead.id && (
               <div className="space-y-4">
                 {editingFollowUps.followUps.map((followUp, index) => (
-                  <div key={index} className="grid grid-cols-4 gap-4 items-end border p-4 rounded">
-                    <div>
-                      <Label>Date</Label>
-                      <Input
-                        type="date"
-                        value={followUp.date}
-                        onChange={(e) => updateFollowUp(index, 'date', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label>Status</Label>
-                      <Select
-                        value={followUp.status}
-                        onValueChange={(value) => updateFollowUp(index, 'status', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {followUpStatusOptions.map(status => (
-                            <SelectItem key={status} value={status}>
-                              {status.replace('_', ' ')}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Notes</Label>
-                      <Input
-                        key={`notes-${index}-${editingFollowUps?.leadId}`}
-                        value={followUp.notes || ''}
-                        onChange={(e) => updateFollowUp(index, 'notes', e.target.value)}
-                        placeholder="Optional notes..."
-                        className="w-full"
-                        autoComplete="off"
-                      />
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => removeFollowUp(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <FollowUpRow
+                    key={`${followUp.id || index}-${editingFollowUps.leadId}`}
+                    followUp={followUp}
+                    index={index}
+                    onUpdate={updateFollowUp}
+                    onRemove={removeFollowUp}
+                  />
                 ))}
                 <div className="flex gap-2">
                   <Button size="sm" onClick={addFollowUp}>
