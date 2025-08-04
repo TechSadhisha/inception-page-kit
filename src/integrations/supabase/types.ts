@@ -735,7 +735,10 @@ export type Database = {
           assigned_to: string | null
           conversion_date: string | null
           created_at: string | null
+          date_added: string | null
           email: string | null
+          first_contact_date: string | null
+          follow_ups: Json | null
           id: string
           interest_rating: number | null
           last_contacted_at: string | null
@@ -753,7 +756,10 @@ export type Database = {
           assigned_to?: string | null
           conversion_date?: string | null
           created_at?: string | null
+          date_added?: string | null
           email?: string | null
+          first_contact_date?: string | null
+          follow_ups?: Json | null
           id?: string
           interest_rating?: number | null
           last_contacted_at?: string | null
@@ -771,7 +777,10 @@ export type Database = {
           assigned_to?: string | null
           conversion_date?: string | null
           created_at?: string | null
+          date_added?: string | null
           email?: string | null
+          first_contact_date?: string | null
+          follow_ups?: Json | null
           id?: string
           interest_rating?: number | null
           last_contacted_at?: string | null
@@ -1165,6 +1174,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_days_in_followup: {
+        Args: { date_added_param: string; follow_ups_param: Json }
+        Returns: number
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
