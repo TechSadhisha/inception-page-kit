@@ -541,6 +541,45 @@ export type Database = {
         }
         Relationships: []
       }
+      product_keys: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          issued_at: string
+          issued_by: string
+          plan_id: string
+          product_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          issued_at?: string
+          issued_by: string
+          plan_id: string
+          product_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          issued_at?: string
+          issued_by?: string
+          plan_id?: string
+          product_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1224,6 +1263,51 @@ export type Database = {
           },
         ]
       }
+      upgrade_requests: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          requested_plan_id: string
+          requirements: string | null
+          status: string
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_plan_id: string
+          requirements?: string | null
+          status?: string
+          updated_at?: string
+          user_email: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_plan_id?: string
+          requirements?: string | null
+          status?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       user_invitations: {
         Row: {
           created_at: string
@@ -1335,6 +1419,13 @@ export type Database = {
         Args: { date_added_param: string; follow_ups_param: Json }
         Returns: number
       }
+      get_user_product_key_plan: {
+        Args: { _user_id: string }
+        Returns: {
+          plan_name: string
+          expires_at: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1348,6 +1439,10 @@ export type Database = {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: boolean
+      }
+      has_valid_product_key: {
+        Args: { _user_id: string }
         Returns: boolean
       }
     }
