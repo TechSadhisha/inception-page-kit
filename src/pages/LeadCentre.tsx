@@ -20,7 +20,7 @@ export default function LeadCentre() {
   const [showManualEntry, setShowManualEntry] = useState(false)
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
-  const { prospects: leads, isLoading, createProspect, createBulkProspects } = useProspects(projectId)
+  const { prospects: leads, isLoading, createProspect, createBulkProspects, updateProspect } = useProspects(projectId)
   const { projects } = useProjects()
   
   const currentProject = projects?.find(p => p.id === projectId)
@@ -141,7 +141,7 @@ export default function LeadCentre() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <LeadList projectId={projectId} leads={leads} />
+          <LeadList projectId={projectId} leads={leads} onUpdateLead={(id, updates) => updateProspect(id, updates)} />
         </TabsContent>
 
         <TabsContent value="sources" className="space-y-4">
