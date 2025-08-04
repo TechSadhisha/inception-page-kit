@@ -377,15 +377,12 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                     <div>
                       <Label>Notes</Label>
                       <Input
+                        key={`notes-${index}-${editingFollowUps?.leadId}`}
                         value={followUp.notes || ''}
-                        onChange={(e) => {
-                          e.stopPropagation()
-                          updateFollowUp(index, 'notes', e.target.value)
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        onFocus={(e) => e.stopPropagation()}
+                        onChange={(e) => updateFollowUp(index, 'notes', e.target.value)}
                         placeholder="Optional notes..."
                         className="w-full"
+                        autoComplete="off"
                       />
                     </div>
                     <Button
