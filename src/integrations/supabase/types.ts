@@ -1536,6 +1536,13 @@ export type Database = {
         Args: { date_added_param: string; follow_ups_param: Json }
         Returns: number
       }
+      get_current_user_company: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          company_id: string
+          company_role: Database["public"]["Enums"]["company_role"]
+        }[]
+      }
       get_user_company_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["company_role"]

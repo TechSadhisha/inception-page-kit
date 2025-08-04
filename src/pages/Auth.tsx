@@ -181,7 +181,7 @@ const Auth = () => {
           name: signupData.companyName,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (companyError) {
         toast({

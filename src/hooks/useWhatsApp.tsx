@@ -45,7 +45,7 @@ export const useWhatsApp = () => {
         .from('whatsapp_messages')
         .insert([messageData])
         .select()
-        .single()
+        .maybeSingle()
 
       if (dbError) throw dbError
 

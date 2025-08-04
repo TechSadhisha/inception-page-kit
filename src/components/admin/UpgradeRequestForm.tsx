@@ -27,7 +27,7 @@ const ProductKeyUpgrade = () => {
         .eq('product_key', productKey.trim())
         .eq('user_id', user?.id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       if (keyError || !keyData) {
         throw new Error('Invalid or expired product key');

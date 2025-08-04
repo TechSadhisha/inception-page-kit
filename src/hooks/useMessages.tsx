@@ -46,7 +46,7 @@ export function useMessages(projectId: string) {
           *,
           sender:profiles(id, full_name, email)
         `)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -87,7 +87,7 @@ export function useMessages(projectId: string) {
               sender:profiles(id, full_name, email)
             `)
             .eq('id', payload.new.id)
-            .single();
+            .maybeSingle();
 
           if (data) {
             queryClient.setQueryData(['messages', projectId], (old: Message[] = []) => {

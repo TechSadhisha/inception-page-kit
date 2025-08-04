@@ -50,7 +50,7 @@ export const useProspects = (projectId?: string) => {
         .from('prospects')
         .insert([dbProspect])
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       
@@ -134,7 +134,7 @@ export const useProspects = (projectId?: string) => {
         .update(dbUpdates)
         .eq('id', id)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       

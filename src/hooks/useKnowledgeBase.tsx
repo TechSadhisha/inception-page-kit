@@ -59,7 +59,7 @@ export const useKnowledgeBase = () => {
           },
         ])
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
@@ -95,7 +95,7 @@ export const useKnowledgeBase = () => {
         })
         .eq('id', id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       

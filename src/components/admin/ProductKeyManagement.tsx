@@ -130,9 +130,9 @@ const ProductKeyManagement = () => {
         .from('profiles')
         .select('id')
         .eq('email', userEmail.trim())
-        .single();
+        .maybeSingle();
 
-      if (profileError) {
+      if (profileError || !profileData) {
         throw new Error('User not found with this email');
       }
 
@@ -183,9 +183,9 @@ const ProductKeyManagement = () => {
         .from('profiles')
         .select('id')
         .eq('email', request.user_email)
-        .single();
+        .maybeSingle();
 
-      if (profileError) {
+      if (profileError || !profileData) {
         throw new Error('User not found with this email');
       }
 

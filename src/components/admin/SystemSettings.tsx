@@ -62,9 +62,9 @@ const SystemSettings = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError) {
+        if (profileError || !profileData) {
           console.error('Error loading profile:', profileError);
         } else {
           setProfile(profileData);
@@ -75,9 +75,9 @@ const SystemSettings = () => {
               .from('companies')
               .select('*')
               .eq('id', profileData.company_id)
-              .single();
+              .maybeSingle();
 
-            if (companyError) {
+            if (companyError || !companyData) {
               console.error('Error loading company:', companyError);
             } else {
               setCompanyDetails(companyData);

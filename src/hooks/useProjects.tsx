@@ -35,7 +35,7 @@ export const useProjects = () => {
         .from('projects')
         .insert([{ ...project, created_by: user.id }])
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data as Project
@@ -65,7 +65,7 @@ export const useProjects = () => {
         .update(updates)
         .eq('id', id)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data as Project
