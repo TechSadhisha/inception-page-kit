@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,36 +14,32 @@ import { User, Building2, Shield, Mail, Phone, MapPin, Save, Key, RefreshCw } fr
 interface Profile {
   id: string;
   email: string;
-  full_name: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
-  youtube_api_key?: string;
+  full_name: string | null;
+  role: string | null;
+  youtube_api_key: string | null;
+  company_id: string | null;
+  company_role: string | null;
 }
 
 interface CompanyDetails {
+  id: string;
   name: string;
-  address: string;
-  phone: string;
-  email: string;
-  website: string;
-  description: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  website: string | null;
+  description: string | null;
 }
 
 const SystemSettings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
-    website: '',
-    description: '',
-  });
-
+  const [companyDetails, setCompanyDetails] = useState<CompanyDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Password change state
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -55,70 +51,146 @@ const SystemSettings = () => {
     password: '',
   });
 
+  // Load user profile and company data
   useEffect(() => {
-    if (user) {
-      fetchProfile();
-      loadCompanyDetails();
-    }
-  }, [user]);
+    const loadData = async () => {
+      if (!user?.id) return;
+      
+      try {
+        // Load user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-  const fetchProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
+        if (profileError) {
+          console.error('Error loading profile:', profileError);
+        } else {
+          setProfile(profileData);
+          
+          // Load company details if user has a company
+          if (profileData.company_id) {
+            const { data: companyData, error: companyError } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('id', profileData.company_id)
+              .single();
 
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+            if (companyError) {
+              console.error('Error loading company:', companyError);
+            } else {
+              setCompanyDetails(companyData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const loadCompanyDetails = () => {
-    const savedDetails = localStorage.getItem('companyDetails');
-    if (savedDetails) {
-      setCompanyDetails(JSON.parse(savedDetails));
-    }
-  };
+    loadData();
+  }, [user?.id]);
 
-  const updateProfile = async (updates: Partial<Profile>) => {
-    setLoading(true);
+  // Update user profile
+  const updateFullName = async (fullName: string) => {
+    setIsUpdating(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update(updates)
+        .update({ full_name: fullName })
         .eq('id', user?.id);
 
-      if (error) throw error;
-
-      toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been successfully updated.',
-      });
-      
-      await fetchProfile();
-    } catch (error: any) {
-      toast({
-        title: 'Update Failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update full name',
+          variant: 'destructive',
+        });
+      } else {
+        setProfile(prev => prev ? { ...prev, full_name: fullName } : null);
+        toast({
+          title: 'Success',
+          description: 'Full name updated successfully',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating full name:', error);
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
-  const updateFullName = async (fullName: string) => {
-    await updateProfile({ full_name: fullName });
-  };
-
+  // Update YouTube API key
   const updateYouTubeKey = async (youtubeApiKey: string) => {
-    await updateProfile({ youtube_api_key: youtubeApiKey });
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ youtube_api_key: youtubeApiKey })
+        .eq('id', user?.id);
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update YouTube API key',
+          variant: 'destructive',
+        });
+      } else {
+        setProfile(prev => prev ? { ...prev, youtube_api_key: youtubeApiKey } : null);
+        toast({
+          title: 'Success',
+          description: 'YouTube API key updated successfully',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating YouTube API key:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
+  // Update company details
+  const updateCompanyDetails = async (updatedDetails: Partial<CompanyDetails>) => {
+    if (!profile?.company_id || profile.company_role !== 'company_admin') {
+      toast({
+        title: 'Access Denied',
+        description: 'Only company administrators can update company details.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update(updatedDetails)
+        .eq('id', profile.company_id);
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update company details',
+          variant: 'destructive',
+        });
+      } else {
+        setCompanyDetails(prev => prev ? { ...prev, ...updatedDetails } : null);
+        toast({
+          title: 'Success',
+          description: 'Company details updated successfully',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating company:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Change password
   const changePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -140,20 +212,25 @@ const SystemSettings = () => {
       return;
     }
 
-    setLoading(true);
+    setIsUpdating(true);
     try {
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword,
       });
 
-      if (error) throw error;
-
-      toast({
-        title: 'Password Updated',
-        description: 'Your password has been successfully changed.',
-      });
-      
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      if (error) {
+        toast({
+          title: 'Password Update Failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        toast({
+          title: 'Password Updated',
+          description: 'Your password has been successfully changed.',
+        });
+      }
     } catch (error: any) {
       toast({
         title: 'Password Update Failed',
@@ -161,27 +238,33 @@ const SystemSettings = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
+  // Change email
   const changeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsUpdating(true);
 
     try {
       const { error } = await supabase.auth.updateUser({
         email: emailData.newEmail,
       });
 
-      if (error) throw error;
-
-      toast({
-        title: 'Email Update Initiated',
-        description: 'Please check both your old and new email addresses to confirm the change.',
-      });
-      
-      setEmailData({ newEmail: '', password: '' });
+      if (error) {
+        toast({
+          title: 'Email Update Failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Email Update Initiated',
+          description: 'Please check both your old and new email addresses to confirm the change.',
+        });
+        setEmailData({ newEmail: '', password: '' });
+      }
     } catch (error: any) {
       toast({
         title: 'Email Update Failed',
@@ -189,25 +272,32 @@ const SystemSettings = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
+  // Reset password via email
   const resetPasswordViaEmail = async () => {
     if (!user?.email) return;
     
-    setLoading(true);
+    setIsUpdating(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
         redirectTo: `${window.location.origin}/auth`,
       });
 
-      if (error) throw error;
-
-      toast({
-        title: 'Reset Email Sent',
-        description: 'Check your email for the password reset link.',
-      });
+      if (error) {
+        toast({
+          title: 'Reset Failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Reset Email Sent',
+          description: 'Check your email for the password reset link.',
+        });
+      }
     } catch (error: any) {
       toast({
         title: 'Reset Failed',
@@ -215,26 +305,29 @@ const SystemSettings = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
-  const saveCompanyDetails = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem('companyDetails', JSON.stringify(companyDetails));
-    toast({
-      title: 'Company Details Saved',
-      description: 'Company information has been saved successfully.',
-    });
-  };
-
-  if (!profile) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="py-8">
           <div className="flex items-center justify-center">
             <RefreshCw className="h-6 w-6 animate-spin mr-2" />
             <span>Loading profile...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="text-center">
+            <p className="text-muted-foreground">Unable to load profile data.</p>
           </div>
         </CardContent>
       </Card>
@@ -286,8 +379,8 @@ const SystemSettings = () => {
                       placeholder="Enter your full name"
                     />
                     <Button
-                      onClick={() => updateFullName(profile.full_name)}
-                      disabled={loading}
+                      onClick={() => updateFullName(profile.full_name || '')}
+                      disabled={isUpdating}
                       size="sm"
                     >
                       <Save className="h-4 w-4" />
@@ -309,20 +402,25 @@ const SystemSettings = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Account Role</Label>
-                  <Input
-                    id="role"
-                    value={profile.role || 'Staff'}
-                    disabled
-                    className="bg-muted"
-                  />
+                  <Label htmlFor="company-role">Company Role</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      id="company-role"
+                      value={profile.company_role || 'employee'}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <Badge variant={profile.company_role === 'company_admin' ? 'default' : 'secondary'}>
+                      {profile.company_role === 'company_admin' ? 'Admin' : 'Employee'}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="created">Member Since</Label>
+                  <Label htmlFor="company-name">Company</Label>
                   <Input
-                    id="created"
-                    value={new Date(profile.created_at).toLocaleDateString()}
+                    id="company-name"
+                    value={companyDetails?.name || 'No company assigned'}
                     disabled
                     className="bg-muted"
                   />
@@ -373,8 +471,8 @@ const SystemSettings = () => {
                     />
                   </div>
 
-                  <Button type="submit" disabled={loading}>
-                    {loading ? 'Updating...' : 'Update Password'}
+                  <Button type="submit" disabled={isUpdating}>
+                    {isUpdating ? 'Updating...' : 'Update Password'}
                   </Button>
                 </form>
               </CardContent>
@@ -414,8 +512,8 @@ const SystemSettings = () => {
                     />
                   </div>
 
-                  <Button type="submit" disabled={loading}>
-                    {loading ? 'Updating...' : 'Update Email'}
+                  <Button type="submit" disabled={isUpdating}>
+                    {isUpdating ? 'Updating...' : 'Update Email'}
                   </Button>
                 </form>
               </CardContent>
@@ -432,8 +530,8 @@ const SystemSettings = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button onClick={resetPasswordViaEmail} disabled={loading} variant="outline">
-                  {loading ? 'Sending...' : 'Send Reset Link'}
+                <Button onClick={resetPasswordViaEmail} disabled={isUpdating} variant="outline">
+                  {isUpdating ? 'Sending...' : 'Send Reset Link'}
                 </Button>
               </CardContent>
             </Card>
@@ -441,90 +539,171 @@ const SystemSettings = () => {
         </TabsContent>
 
         <TabsContent value="company">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Building2 className="h-5 w-5 mr-2" />
-                Company Information
-              </CardTitle>
-              <CardDescription>
-                Manage your company details and contact information
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={saveCompanyDetails} className="space-y-6">
+          {companyDetails ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Building2 className="h-5 w-5 mr-2" />
+                  Company Information
+                </CardTitle>
+                <CardDescription>
+                  {profile.company_role === 'company_admin' 
+                    ? 'Manage your company details and contact information'
+                    : 'View your company information (contact admin to make changes)'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="company-name">Company Name</Label>
-                    <Input
-                      id="company-name"
-                      value={companyDetails.name}
-                      onChange={(e) => setCompanyDetails({ ...companyDetails, name: e.target.value })}
-                      placeholder="Enter company name"
-                    />
+                    <div className="flex space-x-2">
+                      <Input
+                        id="company-name"
+                        value={companyDetails.name}
+                        onChange={(e) => setCompanyDetails({ ...companyDetails, name: e.target.value })}
+                        placeholder="Enter company name"
+                        disabled={profile.company_role !== 'company_admin'}
+                      />
+                      {profile.company_role === 'company_admin' && (
+                        <Button
+                          onClick={() => updateCompanyDetails({ name: companyDetails.name })}
+                          disabled={isUpdating}
+                          size="sm"
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="company-email">Company Email</Label>
-                    <Input
-                      id="company-email"
-                      type="email"
-                      value={companyDetails.email}
-                      onChange={(e) => setCompanyDetails({ ...companyDetails, email: e.target.value })}
-                      placeholder="Enter company email"
-                    />
+                    <div className="flex space-x-2">
+                      <Input
+                        id="company-email"
+                        type="email"
+                        value={companyDetails.email || ''}
+                        onChange={(e) => setCompanyDetails({ ...companyDetails, email: e.target.value })}
+                        placeholder="Enter company email"
+                        disabled={profile.company_role !== 'company_admin'}
+                      />
+                      {profile.company_role === 'company_admin' && (
+                        <Button
+                          onClick={() => updateCompanyDetails({ email: companyDetails.email })}
+                          disabled={isUpdating}
+                          size="sm"
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="company-phone">Phone Number</Label>
-                    <Input
-                      id="company-phone"
-                      value={companyDetails.phone}
-                      onChange={(e) => setCompanyDetails({ ...companyDetails, phone: e.target.value })}
-                      placeholder="Enter phone number"
-                    />
+                    <div className="flex space-x-2">
+                      <Input
+                        id="company-phone"
+                        value={companyDetails.phone || ''}
+                        onChange={(e) => setCompanyDetails({ ...companyDetails, phone: e.target.value })}
+                        placeholder="Enter phone number"
+                        disabled={profile.company_role !== 'company_admin'}
+                      />
+                      {profile.company_role === 'company_admin' && (
+                        <Button
+                          onClick={() => updateCompanyDetails({ phone: companyDetails.phone })}
+                          disabled={isUpdating}
+                          size="sm"
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="company-website">Website</Label>
-                    <Input
-                      id="company-website"
-                      value={companyDetails.website}
-                      onChange={(e) => setCompanyDetails({ ...companyDetails, website: e.target.value })}
-                      placeholder="https://example.com"
-                    />
+                    <div className="flex space-x-2">
+                      <Input
+                        id="company-website"
+                        value={companyDetails.website || ''}
+                        onChange={(e) => setCompanyDetails({ ...companyDetails, website: e.target.value })}
+                        placeholder="https://example.com"
+                        disabled={profile.company_role !== 'company_admin'}
+                      />
+                      {profile.company_role === 'company_admin' && (
+                        <Button
+                          onClick={() => updateCompanyDetails({ website: companyDetails.website })}
+                          disabled={isUpdating}
+                          size="sm"
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="company-address">Address</Label>
-                  <Textarea
-                    id="company-address"
-                    value={companyDetails.address}
-                    onChange={(e) => setCompanyDetails({ ...companyDetails, address: e.target.value })}
-                    placeholder="Enter company address"
-                    rows={3}
-                  />
+                  <div className="flex space-x-2">
+                    <Textarea
+                      id="company-address"
+                      value={companyDetails.address || ''}
+                      onChange={(e) => setCompanyDetails({ ...companyDetails, address: e.target.value })}
+                      placeholder="Enter company address"
+                      disabled={profile.company_role !== 'company_admin'}
+                      className="min-h-[80px]"
+                    />
+                    {profile.company_role === 'company_admin' && (
+                      <Button
+                        onClick={() => updateCompanyDetails({ address: companyDetails.address })}
+                        disabled={isUpdating}
+                        size="sm"
+                        className="self-start"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="company-description">Description</Label>
-                  <Textarea
-                    id="company-description"
-                    value={companyDetails.description}
-                    onChange={(e) => setCompanyDetails({ ...companyDetails, description: e.target.value })}
-                    placeholder="Enter company description"
-                    rows={4}
-                  />
+                  <div className="flex space-x-2">
+                    <Textarea
+                      id="company-description"
+                      value={companyDetails.description || ''}
+                      onChange={(e) => setCompanyDetails({ ...companyDetails, description: e.target.value })}
+                      placeholder="Enter company description"
+                      disabled={profile.company_role !== 'company_admin'}
+                      className="min-h-[100px]"
+                    />
+                    {profile.company_role === 'company_admin' && (
+                      <Button
+                        onClick={() => updateCompanyDetails({ description: companyDetails.description })}
+                        disabled={isUpdating}
+                        size="sm"
+                        className="self-start"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Company Details
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="py-8">
+                <div className="text-center">
+                  <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No company information available.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="api-keys">
@@ -535,30 +714,38 @@ const SystemSettings = () => {
                 API Keys
               </CardTitle>
               <CardDescription>
-                Manage your API keys for various integrations
+                Manage your API keys for external services
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="youtube-api-key">YouTube API Key</Label>
+                <Label htmlFor="youtube-api-key">YouTube Data API Key</Label>
                 <div className="flex space-x-2">
                   <Input
                     id="youtube-api-key"
                     type="password"
                     value={profile.youtube_api_key || ''}
                     onChange={(e) => setProfile({ ...profile, youtube_api_key: e.target.value })}
-                    placeholder="Enter YouTube API key"
+                    placeholder="Enter your YouTube Data API key"
                   />
                   <Button
                     onClick={() => updateYouTubeKey(profile.youtube_api_key || '')}
-                    disabled={loading}
+                    disabled={isUpdating}
                     size="sm"
                   >
                     <Save className="h-4 w-4" />
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Used for YouTube integration features
+                  Required for YouTube video search functionality. Get your key from{' '}
+                  <a 
+                    href="https://console.developers.google.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Google Cloud Console
+                  </a>
                 </p>
               </div>
             </CardContent>
