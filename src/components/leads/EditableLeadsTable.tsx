@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { format } from 'date-fns'
 import { Calendar, ChevronDown, Plus, X, Save, Download, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -159,16 +159,21 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
     })
   }
 
-  const updateFollowUp = (index: number, field: keyof FollowUp, value: string) => {
-    if (!editingFollowUps) return
-
-    const updatedFollowUps = [...editingFollowUps.followUps]
-    updatedFollowUps[index] = { ...updatedFollowUps[index], [field]: value }
-    setEditingFollowUps({
-      ...editingFollowUps,
-      followUps: updatedFollowUps
+  const updateFollowUp = useCallback((index: number, field: keyof FollowUp, value: string) => {
+    console.log(`Updating followUp ${index}, field: ${field}, value: ${value}`)
+    setEditingFollowUps(current => {
+      if (!current) return current
+      
+      const updatedFollowUps = current.followUps.map((followUp, i) => 
+        i === index ? { ...followUp, [field]: value } : followUp
+      )
+      
+      return {
+        ...current,
+        followUps: updatedFollowUps
+      }
     })
-  }
+  }, [])
 
   const EditableCell = ({ lead, field, value, type = 'text' }: {
     lead: Prospect
