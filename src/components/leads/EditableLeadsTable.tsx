@@ -303,21 +303,18 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
 
   const FollowUpCell = ({ lead }: { lead: Prospect }) => {
     const followUps = lead.follow_ups || []
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const isDialogOpen = editingFollowUps?.leadId === lead.id
 
     const handleEditClick = () => {
       handleFollowUpEdit(lead.id, followUps)
-      setIsDialogOpen(true)
     }
 
     const handleSaveAndClose = async () => {
       await handleFollowUpSave()
-      setIsDialogOpen(false)
     }
 
     const handleDialogClose = () => {
       setEditingFollowUps(null)
-      setIsDialogOpen(false)
     }
 
     return (
@@ -332,7 +329,7 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
         ) : (
           <span className="text-muted-foreground text-xs">—</span>
         )}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleDialogClose()}>
           <DialogTrigger asChild>
             <Button
               size="sm"
