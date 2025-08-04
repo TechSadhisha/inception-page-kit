@@ -6,6 +6,7 @@ import { RoleManagement } from '@/components/admin/RoleManagement';
 import UserInvitations from '@/components/admin/UserInvitations';
 import ProductKeyManagement from '@/components/admin/ProductKeyManagement';
 import UpgradeRequestForm from '@/components/admin/UpgradeRequestForm';
+import SystemSettings from '@/components/admin/SystemSettings';
 
 const Admin = () => {
   return (
@@ -58,19 +59,7 @@ const Admin = () => {
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Settings</CardTitle>
-              <CardDescription>
-                Configure system-wide settings and preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                System settings will be implemented here
-              </div>
-            </CardContent>
-          </Card>
+          <SystemSettings />
         </TabsContent>
       </Tabs>
     </div>
