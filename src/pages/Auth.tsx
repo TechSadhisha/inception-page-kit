@@ -30,6 +30,8 @@ const Auth = () => {
     password: '',
     fullName: '',
     confirmPassword: '',
+    companyName: '',
+    isCompanyAdmin: true, // First user is always company admin
   });
 
   const [resetData, setResetData] = useState({
@@ -172,6 +174,25 @@ const Auth = () => {
     try {
       const redirectUrl = `${window.location.origin}/auth`;
       
+      // First create the company
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert({
+          name: signupData.companyName,
+        })
+        .select()
+        .single();
+
+      if (companyError) {
+        toast({
+          title: 'Company Creation Failed',
+          description: companyError.message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
@@ -179,6 +200,8 @@ const Auth = () => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: signupData.fullName,
+            company_id: companyData.id,
+            company_role: 'company_admin',
           },
         },
       });
@@ -204,7 +227,7 @@ const Auth = () => {
         });
         
         // Clear form and switch to login
-        setSignupData({ email: '', password: '', fullName: '', confirmPassword: '' });
+        setSignupData({ email: '', password: '', fullName: '', confirmPassword: '', companyName: '', isCompanyAdmin: true });
         setCurrentView('login');
       }
     } catch (error) {
@@ -499,6 +522,17 @@ const Auth = () => {
                       placeholder="Enter your full name"
                       value={signupData.fullName}
                       onChange={(e) => setSignupData({ ...signupData, fullName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company-name">Company Name</Label>
+                    <Input
+                      id="company-name"
+                      type="text"
+                      placeholder="Enter your company name"
+                      value={signupData.companyName}
+                      onChange={(e) => setSignupData({ ...signupData, companyName: e.target.value })}
                       required
                     />
                   </div>

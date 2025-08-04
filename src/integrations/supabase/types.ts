@@ -94,6 +94,45 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
           body_html: string | null
@@ -273,6 +312,7 @@ export type Database = {
       }
       integration_configs: {
         Row: {
+          company_id: string | null
           config: Json
           created_at: string
           id: string
@@ -284,6 +324,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id?: string | null
           config?: Json
           created_at?: string
           id?: string
@@ -295,6 +336,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string | null
           config?: Json
           created_at?: string
           id?: string
@@ -305,11 +347,20 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "integration_configs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_videos: {
         Row: {
           category: string | null
+          company_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -321,6 +372,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -332,6 +384,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -341,10 +394,19 @@ export type Database = {
           url?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_videos_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_sources: {
         Row: {
+          company_id: string | null
           config: Json
           conversion_rate: number | null
           created_at: string
@@ -357,6 +419,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id?: string | null
           config?: Json
           conversion_rate?: number | null
           created_at?: string
@@ -369,6 +432,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string | null
           config?: Json
           conversion_rate?: number | null
           created_at?: string
@@ -380,7 +444,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lead_sources_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -582,6 +654,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          company_id: string | null
+          company_role: Database["public"]["Enums"]["company_role"] | null
           created_at: string | null
           email: string
           full_name: string | null
@@ -591,6 +665,8 @@ export type Database = {
           youtube_api_key: string | null
         }
         Insert: {
+          company_id?: string | null
+          company_role?: Database["public"]["Enums"]["company_role"] | null
           created_at?: string | null
           email: string
           full_name?: string | null
@@ -600,6 +676,8 @@ export type Database = {
           youtube_api_key?: string | null
         }
         Update: {
+          company_id?: string | null
+          company_role?: Database["public"]["Enums"]["company_role"] | null
           created_at?: string | null
           email?: string
           full_name?: string | null
@@ -608,7 +686,15 @@ export type Database = {
           updated_at?: string | null
           youtube_api_key?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_assignments: {
         Row: {
@@ -696,6 +782,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          company_id: string | null
           created_at: string | null
           created_by: string
           description: string | null
@@ -705,6 +792,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          company_id?: string | null
           created_at?: string | null
           created_by: string
           description?: string | null
@@ -714,6 +802,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          company_id?: string | null
           created_at?: string | null
           created_by?: string
           description?: string | null
@@ -723,6 +812,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "projects_created_by_fkey"
             columns: ["created_by"]
@@ -741,6 +837,7 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
+          company_id: string | null
           created_at: string
           description: string | null
           external_id: string | null
@@ -768,6 +865,7 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           external_id?: string | null
@@ -795,6 +893,7 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           external_id?: string | null
@@ -814,11 +913,20 @@ export type Database = {
           user_id?: string
           zipcode?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "property_listings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prospects: {
         Row: {
           assigned_to: string | null
+          company_id: string | null
           conversion_date: string | null
           created_at: string | null
           date_added: string | null
@@ -840,6 +948,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          company_id?: string | null
           conversion_date?: string | null
           created_at?: string | null
           date_added?: string | null
@@ -861,6 +970,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          company_id?: string | null
           conversion_date?: string | null
           created_at?: string | null
           date_added?: string | null
@@ -886,6 +996,13 @@ export type Database = {
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -1419,6 +1536,10 @@ export type Database = {
         Args: { date_added_param: string; follow_ups_param: Json }
         Returns: number
       }
+      get_user_company_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["company_role"]
+      }
       get_user_product_key_plan: {
         Args: { _user_id: string }
         Returns: {
@@ -1445,9 +1566,14 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      is_company_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "staff"
+      company_role: "company_admin" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1576,6 +1702,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "staff"],
+      company_role: ["company_admin", "employee"],
     },
   },
 } as const
