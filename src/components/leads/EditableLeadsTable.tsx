@@ -46,13 +46,31 @@ const followUpStatusOptions = [
   'contacted', 'no_response', 'meeting_scheduled', 'callback_requested', 'not_interested', 'follow_up_later'
 ]
 
-// Memoized FollowUpRow component to prevent unnecessary re-renders
+// Memoized FollowUpRow component with local state to prevent re-renders
 const FollowUpRow = memo(({ followUp, index, onUpdate, onRemove }: {
   followUp: FollowUp
   index: number
   onUpdate: (index: number, field: keyof FollowUp, value: string) => void
   onRemove: (index: number) => void
 }) => {
+  const notesRef = useRef<HTMLInputElement>(null)
+  const [localNotes, setLocalNotes] = useState(followUp.notes || '')
+  
+  // Update local state when followUp changes from parent
+  useEffect(() => {
+    setLocalNotes(followUp.notes || '')
+  }, [followUp.notes])
+  
+  const handleNotesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalNotes(e.target.value)
+  }
+  
+  const handleNotesBlur = () => {
+    if (localNotes !== followUp.notes) {
+      onUpdate(index, 'notes', localNotes)
+    }
+  }
+  
   return (
     <div className="grid grid-cols-4 gap-4 items-end border p-4 rounded">
       <div>
@@ -84,8 +102,10 @@ const FollowUpRow = memo(({ followUp, index, onUpdate, onRemove }: {
       <div>
         <Label>Notes</Label>
         <Input
-          value={followUp.notes || ''}
-          onChange={(e) => onUpdate(index, 'notes', e.target.value)}
+          ref={notesRef}
+          value={localNotes}
+          onChange={handleNotesChange}
+          onBlur={handleNotesBlur}
           placeholder="Optional notes..."
           className="w-full"
           autoComplete="off"
