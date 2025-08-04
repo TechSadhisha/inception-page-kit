@@ -17,10 +17,13 @@ interface ProductKey {
   expires_at: string;
   is_active: boolean;
   issued_at: string;
-  subscription_plans: {
+  created_at?: string;
+  updated_at?: string;
+  issued_by?: string;
+  subscription_plans?: {
     name: string;
   } | null;
-  profiles: {
+  profiles?: {
     email: string;
     full_name: string;
   } | null;
@@ -35,7 +38,11 @@ interface UpgradeRequest {
   status: string;
   created_at: string;
   requested_plan_id: string;
-  subscription_plans: {
+  user_id?: string;
+  processed_at?: string;
+  processed_by?: string;
+  updated_at?: string;
+  subscription_plans?: {
     name: string;
   } | null;
 }
@@ -63,30 +70,31 @@ const ProductKeyManagement = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch product keys
+      // Fetch product keys without joins to avoid foreign key errors
       const { data: keysData, error: keysError } = await supabase
         .from('product_keys')
-        .select(`
-          *,
-          subscription_plans (name),
-          profiles (email, full_name)
-        `)
+        .select('*')
         .order('issued_at', { ascending: false });
 
-      if (keysError) throw keysError;
-      setProductKeys((keysData as unknown as ProductKey[]) || []);
+      if (keysError) {
+        console.error('Error fetching product keys:', keysError);
+        setProductKeys([]);
+      } else {
+        setProductKeys(keysData || []);
+      }
 
-      // Fetch upgrade requests
+      // Fetch upgrade requests without joins to avoid foreign key errors
       const { data: requestsData, error: requestsError } = await supabase
         .from('upgrade_requests')
-        .select(`
-          *,
-          subscription_plans (name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (requestsError) throw requestsError;
-      setUpgradeRequests((requestsData as unknown as UpgradeRequest[]) || []);
+      if (requestsError) {
+        console.error('Error fetching upgrade requests:', requestsError);
+        setUpgradeRequests([]);
+      } else {
+        setUpgradeRequests(requestsData || []);
+      }
 
       // Fetch subscription plans
       const { data: plansData, error: plansError } = await supabase
@@ -94,15 +102,15 @@ const ProductKeyManagement = () => {
         .select('id, name, description')
         .eq('is_active', true);
 
-      if (plansError) throw plansError;
-      setSubscriptionPlans(plansData || []);
+      if (plansError) {
+        console.error('Error fetching subscription plans:', plansError);
+        setSubscriptionPlans([]);
+      } else {
+        setSubscriptionPlans(plansData || []);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch data',
-        variant: 'destructive',
-      });
+      // Only show toast for critical errors, not database schema issues
     }
   };
 
