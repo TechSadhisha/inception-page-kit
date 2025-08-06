@@ -5,7 +5,9 @@ import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/hooks/useAuth'
 import Layout from '@/Layout'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import RootRedirect from '@/components/RootRedirect'
 import Auth from '@/pages/Auth'
+import Home from '@/pages/Home'
 import Index from '@/pages/Index'
 import Projects from '@/pages/Projects'
 import Prospects from '@/pages/Prospects'
@@ -40,8 +42,10 @@ function App() {
         <Router>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route index element={<RootRedirect><Index /></RootRedirect>} />
+              <Route path="dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
               <Route path="projects/:projectId/sheets" element={<ProtectedRoute><ProjectSheets /></ProtectedRoute>} />
               <Route path="projects/:projectId/lead-centre" element={<ProtectedRoute><LeadCentre /></ProtectedRoute>} />

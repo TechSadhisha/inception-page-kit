@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Building, ArrowLeft, Mail, Shield } from 'lucide-react';
+import { Building, ArrowLeft, Mail, Shield, Home, Crown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
@@ -450,13 +451,24 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Building className="h-8 w-8 text-blue-600 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900">Real Estate CRM</h1>
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <Building className="h-8 w-8 text-blue-600 mr-2" />
+              <h1 className="text-2xl font-bold text-gray-900">Real Estate CRM</h1>
+            </div>
+            <p className="text-gray-600">Start your 14-day free trial today</p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
+              <p className="text-sm text-green-700 font-medium">🎉 14 Days Free • No Credit Card Required</p>
+            </div>
+            <div className="mt-4">
+              <Link to="/home">
+                <Button variant="outline" size="sm">
+                  <Home className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
           </div>
-          <p className="text-gray-600">Secure platform for your real estate business</p>
-        </div>
 
         <Card>
           <CardHeader>
@@ -573,8 +585,17 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating account...' : 'Create Account'}
+                    {isLoading ? 'Creating account...' : 'Start Free Trial'}
                   </Button>
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Need enterprise features?
+                    </p>
+                    <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="w-full">
+                      <Crown className="mr-2 h-4 w-4" />
+                      Request Enterprise Upgrade
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
             </Tabs>
