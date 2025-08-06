@@ -100,19 +100,20 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Building className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">Sadhisha Real CRM</span>
+            <Building className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <span className="text-lg sm:text-xl font-bold text-foreground">Sadhisha Real CRM</span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link to="/auth">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Sign In</Button>
             </Link>
             <Link to="/auth">
-              <Button>
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="sm">
+                <span className="hidden sm:inline">Start Free Trial</span>
+                <span className="sm:hidden">Trial</span>
+                <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
           </div>
@@ -120,29 +121,29 @@ const Home = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
+      <section className="container mx-auto px-4 py-8 sm:py-16 text-center">
         <div className="max-w-4xl mx-auto">
-          <Badge variant="secondary" className="mb-6">
-            <Crown className="mr-2 h-4 w-4" />
+          <Badge variant="secondary" className="mb-4 sm:mb-6">
+            <Crown className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
             14-Day Free Trial Available
           </Badge>
-          <h1 className="text-5xl font-bold text-foreground mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
             The Complete CRM Solution for
             <span className="text-primary"> Real Estate Excellence</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
             Experience the future of real estate management with Sadhisha Real CRM. 
             Our AI-powered platform streamlines your business operations, enhances client relationships, and drives unprecedented growth.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
             <Link to="/auth">
-              <Button size="lg" className="px-8 py-3 text-lg">
-                <Zap className="mr-2 h-5 w-5" />
+              <Button size="lg" className="px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg w-full sm:w-auto">
+                <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Start Your Free Trial
               </Button>
             </Link>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Clock className="mr-2 h-4 w-4" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <Clock className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               No credit card required • 14 days free
             </div>
           </div>

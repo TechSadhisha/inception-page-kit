@@ -451,20 +451,20 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-md">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
+              <Building className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
-            <p className="text-gray-600">Experience AI-powered real estate management</p>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-green-700 font-medium">🎉 14 Days Free Trial • AI-Powered Excellence</p>
+            <p className="text-sm sm:text-base text-gray-600">Experience AI-powered real estate management</p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-2 sm:p-3 mt-4">
+              <p className="text-xs sm:text-sm text-green-700 font-medium">🎉 14 Days Free Trial • AI-Powered Excellence</p>
             </div>
             <div className="mt-4">
               <Link to="/home">
                 <Button variant="outline" size="sm">
-                  <Home className="mr-2 h-4 w-4" />
-                  Back to Home
+                  <Home className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-sm">Back to Home</span>
                 </Button>
               </Link>
             </div>

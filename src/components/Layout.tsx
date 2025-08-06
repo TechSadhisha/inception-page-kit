@@ -1,7 +1,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Building, LogOut, User, Home, FolderOpen, Users, Files, MessageSquare, BarChart3, FileText, CheckSquare } from 'lucide-react';
+import { Building, LogOut, User, Home, FolderOpen, Users, Files, MessageSquare, BarChart3, FileText, CheckSquare, Menu } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   DropdownMenu,
@@ -12,15 +12,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
-  const { user, signOut } = useAuth();
+// AppSidebar Component
+const AppSidebar = () => {
+  const { state } = useSidebar();
   const location = useLocation();
-
+  const { user, signOut } = useAuth();
+  
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -45,48 +60,81 @@ const Layout = ({ children }: LayoutProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card shadow-sm sticky top-0 z-50">
-        <div className="flex items-center justify-between h-16 px-6">
-          <div className="flex items-center space-x-6">
-            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <Building className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold text-foreground">Real Estate CRM</h1>
-            </Link>
-            
-            <nav className="flex items-center space-x-1">
+    <Sidebar className={`${state === "collapsed" ? "w-14" : "w-64"} transition-all duration-300`} collapsible="icon">
+      <SidebarContent className="bg-sidebar-background">
+        {/* Header */}
+        <div className="p-4 border-b border-sidebar-border">
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <Building className="h-6 w-6 text-sidebar-primary flex-shrink-0" />
+            {state !== "collapsed" && (
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-sidebar-foreground truncate">Sadhisha Real CRM</h1>
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <SidebarGroup className="flex-1">
+          <SidebarGroupLabel className={`${state === "collapsed" ? 'sr-only' : ''} text-sidebar-foreground/70`}>
+            Navigation
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.path);
                 return (
-                  <Link key={item.path} to={item.path}>
-                    <Button 
-                      variant={isActive(item.path) ? 'default' : 'ghost'} 
-                      size="sm"
-                      className="flex items-center space-x-2"
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`w-full justify-start ${
+                        active 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                      }`}
                     >
-                      <Icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </Button>
-                  </Link>
+                      <Link to={item.path} className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors">
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        {state !== "collapsed" && <span className="truncate">{item.label}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 );
               })}
-            </nav>
-          </div>
-          
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-sidebar-border mt-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-start p-2 h-auto hover:bg-sidebar-accent/50 ${state === "collapsed" ? 'px-2' : 'px-3'}`}
+              >
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground">
                     {user?.user_metadata?.full_name 
                       ? getInitials(user.user_metadata.full_name)
                       : user?.email?.charAt(0).toUpperCase() || 'U'
                     }
                   </AvatarFallback>
                 </Avatar>
+                {state !== "collapsed" && (
+                  <div className="flex flex-col items-start ml-3 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground truncate">
+                      {user?.user_metadata?.full_name || 'User'}
+                    </p>
+                    <p className="text-xs text-sidebar-foreground/70 truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuContent className="w-56" align="end" side="right">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
@@ -110,12 +158,33 @@ const Layout = ({ children }: LayoutProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </header>
-      
-      <main className="container mx-auto p-6">
-        {children}
-      </main>
-    </div>
+      </SidebarContent>
+    </Sidebar>
+  );
+};
+
+const Layout = ({ children }: LayoutProps) => {
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Global header with hamburger trigger */}
+        <header className="fixed top-0 left-0 right-0 h-14 bg-card border-b border-border shadow-sm z-50 flex items-center px-4">
+          <SidebarTrigger className="mr-4 hover:bg-accent hover:text-accent-foreground" />
+          <div className="flex items-center space-x-2">
+            <Building className="h-5 w-5 text-primary md:hidden" />
+            <span className="font-semibold text-foreground text-sm md:hidden">Sadhisha CRM</span>
+          </div>
+        </header>
+
+        <AppSidebar />
+        
+        <main className="flex-1 pt-14 overflow-auto">
+          <div className="container mx-auto p-4 md:p-6 max-w-7xl">
+            {children}
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
