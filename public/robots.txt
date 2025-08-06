@@ -1,14 +1,30 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# Allow access to main app paths
+Allow: /crm/
+Allow: /crm/auth
+Allow: /crm/home
+Allow: /crm/dashboard
+Allow: /crm/projects
+Allow: /crm/prospects
+Allow: /crm/tasks
+Allow: /crm/messages
+Allow: /crm/reports
+Allow: /crm/scripts
+Allow: /crm/files
+Allow: /crm/knowledge
+Allow: /crm/emails
+Allow: /crm/whatsapp
+Allow: /crm/campaigns
+Allow: /crm/properties
+Allow: /crm/workflows
+Allow: /crm/integrations
+
+# Block sensitive admin paths
+Disallow: /crm/admin
+
+# Block API endpoints
+Disallow: /crm/api/
+
+Sitemap: https://ai.sadhisha.com/crm/sitemap.xml

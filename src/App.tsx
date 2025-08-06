@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/hooks/useAuth'
+import { AppErrorBoundary } from '@/components/ErrorBoundary'
 import Layout from '@/Layout'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import RootRedirect from '@/components/RootRedirect'
@@ -37,6 +38,7 @@ const queryClient = new QueryClient()
 
 function App() {
   return (
+    <AppErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
@@ -74,6 +76,7 @@ function App() {
         </Router>
       </AuthProvider>
     </QueryClientProvider>
+    </AppErrorBoundary>
   )
 }
 
