@@ -78,20 +78,20 @@ const Home = () => {
   const testimonials = [
     {
       name: 'Sarah Johnson',
-      role: 'Real Estate Agent',
-      content: 'This CRM transformed my business. I\'ve increased my conversion rate by 35% since using it.',
+      role: 'Top Real Estate Agent',
+      content: 'Sadhisha Real CRM revolutionized my business. The AI insights helped me increase my conversion rate by 45% in just 3 months.',
       rating: 5,
     },
     {
       name: 'Mike Chen',
-      role: 'Property Developer',
-      content: 'The project management features are incredible. I can track everything in one place.',
+      role: 'Property Development Director',
+      content: 'The intelligent project management features are game-changing. I can now manage multiple developments seamlessly.',
       rating: 5,
     },
     {
       name: 'Lisa Rodriguez',
-      role: 'Broker',
-      content: 'Finally, a CRM built specifically for real estate. The automation features save me hours.',
+      role: 'Real Estate Broker',
+      content: 'Finally, a CRM that understands real estate. The automation features save me hours every day.',
       rating: 5,
     },
   ];
@@ -103,7 +103,7 @@ const Home = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Building className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">Real Estate CRM</span>
+            <span className="text-xl font-bold text-foreground">Sadhisha Real CRM</span>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/auth">
@@ -128,11 +128,11 @@ const Home = () => {
           </Badge>
           <h1 className="text-5xl font-bold text-foreground mb-6 leading-tight">
             The Complete CRM Solution for
-            <span className="text-primary"> Real Estate Professionals</span>
+            <span className="text-primary"> Real Estate Excellence</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            Streamline your real estate business with our powerful CRM platform. 
-            Manage leads, track projects, automate follow-ups, and close more deals.
+            Experience the future of real estate management with Sadhisha Real CRM. 
+            Our AI-powered platform streamlines your business operations, enhances client relationships, and drives unprecedented growth.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Link to="/auth">
@@ -150,16 +150,16 @@ const Home = () => {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">10,000+</div>
-              <div className="text-muted-foreground">Active Real Estate Professionals</div>
+              <div className="text-3xl font-bold text-primary mb-2">25,000+</div>
+              <div className="text-muted-foreground">Satisfied Real Estate Professionals</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-2">40%</div>
               <div className="text-muted-foreground">Average Conversion Increase</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-              <div className="text-muted-foreground">Customer Support</div>
+              <div className="text-3xl font-bold text-primary mb-2">AI-Powered</div>
+              <div className="text-muted-foreground">Intelligent Business Insights</div>
             </div>
           </div>
         </div>
@@ -170,10 +170,10 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Everything You Need to Succeed
+              Sadhisha Real CRM Features
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our comprehensive platform includes all the tools real estate professionals need to manage their business effectively.
+              Our comprehensive AI-powered platform includes all the tools real estate professionals need to excel in today's competitive market.
             </p>
           </div>
           
@@ -203,13 +203,20 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-foreground mb-6">
-                Transform Your Real Estate Business
+                Transform Your Real Estate Business with AI
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Join thousands of successful real estate professionals who have transformed their business with our CRM platform.
+                Join thousands of successful real estate professionals who have revolutionized their business with Sadhisha Real CRM's intelligent platform.
               </p>
               <div className="space-y-4">
-                {benefits.map((benefit, index) => (
+                {[
+                  'Increase conversion rates by up to 60% with AI insights',
+                  'Save 15+ hours per week with intelligent automation',
+                  'Never lose a lead with smart follow-up systems',
+                  'Predictive analytics for market trends',
+                  'Real-time performance dashboards',
+                  'Mobile-first responsive design',
+                ].map((benefit, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-foreground">{benefit}</span>
@@ -221,9 +228,9 @@ const Home = () => {
               <Card className="p-8 shadow-2xl">
                 <div className="text-center">
                   <Target className="h-16 w-16 text-primary mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Get Started?</h3>
+                  <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Experience Excellence?</h3>
                   <p className="text-muted-foreground mb-6">
-                    Start your 14-day free trial today and see the difference our CRM can make.
+                    Start your 14-day free trial today and discover the power of AI-driven real estate management.
                   </p>
                   <Link to="/auth">
                     <Button size="lg" className="w-full">
@@ -245,10 +252,10 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Trusted by Real Estate Professionals
+              Trusted by Real Estate Leaders
             </h2>
             <p className="text-lg text-muted-foreground">
-              See what our customers have to say about their success with our platform.
+              See what industry leaders have to say about their success with Sadhisha Real CRM.
             </p>
           </div>
           
@@ -279,10 +286,10 @@ const Home = () => {
       <section className="bg-gradient-to-r from-primary to-blue-600 py-16 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">
-            Start Your Success Story Today
+            Start Your Success Journey Today
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Get full access to all features with our 14-day free trial. No credit card required.
+            Experience the future of real estate management with our AI-powered platform. No credit card required.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
@@ -290,7 +297,7 @@ const Home = () => {
               <CardHeader>
                 <CardTitle className="text-xl">Free Trial</CardTitle>
                 <CardDescription className="text-white/80">
-                  Perfect for getting started
+                  Experience AI-powered excellence
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -307,16 +314,16 @@ const Home = () => {
             <Card className="bg-white/10 border-white/20 text-white">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center">
-                  Need More Features?
+                  Enterprise Solutions
                   <Crown className="ml-2 h-5 w-5" />
                 </CardTitle>
                 <CardDescription className="text-white/80">
-                  Upgrade for advanced capabilities
+                  Advanced AI features & dedicated support
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold mb-4">Custom</div>
-                <div className="text-sm mb-6 opacity-80">Enterprise features • Priority support</div>
+                <div className="text-sm mb-6 opacity-80">AI-powered features • Premium support</div>
                 <Link to="/auth">
                   <Button variant="outline" size="lg" className="w-full bg-white text-primary hover:bg-white/90">
                     <Mail className="mr-2 h-4 w-4" />
@@ -335,7 +342,7 @@ const Home = () => {
               </Button>
             </Link>
             <p className="text-sm opacity-80">
-              Join 10,000+ real estate professionals already using our platform
+              Join 25,000+ real estate professionals already transforming their business
             </p>
           </div>
         </div>
@@ -348,10 +355,10 @@ const Home = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Building className="h-6 w-6 text-primary" />
-                <span className="text-lg font-bold">Real Estate CRM</span>
+                <span className="text-lg font-bold">Sadhisha Real CRM</span>
               </div>
               <p className="text-slate-400 text-sm">
-                The complete CRM solution for real estate professionals.
+                AI-powered CRM solution for real estate excellence.
               </p>
             </div>
             
@@ -383,7 +390,7 @@ const Home = () => {
           </div>
           
           <div className="border-t border-slate-800 mt-8 pt-8 text-center text-sm text-slate-400">
-            <p>&copy; 2024 Real Estate CRM. All rights reserved.</p>
+            <p>&copy; 2024 Sadhisha Real CRM. All rights reserved.</p>
           </div>
         </div>
       </footer>

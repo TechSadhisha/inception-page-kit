@@ -338,7 +338,7 @@ const Auth = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Building className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-2xl font-bold text-gray-900">Real Estate CRM</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Reset your password</p>
           </div>
@@ -395,7 +395,7 @@ const Auth = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Building className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-2xl font-bold text-gray-900">Real Estate CRM</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Set your new password</p>
           </div>
@@ -454,11 +454,11 @@ const Auth = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Building className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-2xl font-bold text-gray-900">Real Estate CRM</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
-            <p className="text-gray-600">Start your 14-day free trial today</p>
+            <p className="text-gray-600">Experience AI-powered real estate management</p>
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-green-700 font-medium">🎉 14 Days Free • No Credit Card Required</p>
+              <p className="text-sm text-green-700 font-medium">🎉 14 Days Free Trial • AI-Powered Excellence</p>
             </div>
             <div className="mt-4">
               <Link to="/home">
