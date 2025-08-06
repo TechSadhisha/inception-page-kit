@@ -15,11 +15,13 @@ export const useProjects = () => {
   const { data: projects, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
+      console.log('Fetching projects, user:', user?.id)
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('created_at', { ascending: false })
 
+      console.log('Projects fetch result:', { data, error })
       if (error) throw error
       return data as Project[]
     },
