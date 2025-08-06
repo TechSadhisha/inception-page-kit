@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Building, Users, FileText, MessageSquare, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import sadhishaLogo from '@/assets/sadhisha-logo.png';
 
 const Index = () => {
   const { user } = useAuth();

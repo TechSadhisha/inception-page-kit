@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Building, ArrowLeft, Mail, Shield, Home, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import sadhishaLogo from '@/assets/sadhisha-logo.png';
 
 const Auth = () => {
   const { signIn, loading, user } = useAuth();
@@ -337,7 +338,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-8 w-8 text-blue-600 mr-2" />
+              <img src={sadhishaLogo} alt="Sadhisha" className="h-8 w-8 object-contain mr-2" />
               <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Reset your password</p>
@@ -394,7 +395,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-8 w-8 text-blue-600 mr-2" />
+              <img src={sadhishaLogo} alt="Sadhisha" className="h-8 w-8 object-contain mr-2" />
               <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Set your new password</p>
@@ -453,7 +454,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2" />
+              <img src={sadhishaLogo} alt="Sadhisha" className="h-6 w-6 sm:h-8 sm:w-8 object-contain mr-2" />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-sm sm:text-base text-gray-600">Experience AI-powered real estate management</p>

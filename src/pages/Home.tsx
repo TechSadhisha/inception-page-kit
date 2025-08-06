@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import sadhishaLogo from '@/assets/sadhisha-logo.png';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -102,7 +103,7 @@ const Home = () => {
       <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Building className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <img src={sadhishaLogo} alt="Sadhisha" className="h-6 w-6 sm:h-8 sm:w-8 object-contain" />
             <span className="text-lg sm:text-xl font-bold text-foreground">Sadhisha Real CRM</span>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -355,7 +356,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Building className="h-6 w-6 text-primary" />
+                <img src={sadhishaLogo} alt="Sadhisha" className="h-6 w-6 object-contain" />
                 <span className="text-lg font-bold">Sadhisha Real CRM</span>
               </div>
               <p className="text-slate-400 text-sm">
