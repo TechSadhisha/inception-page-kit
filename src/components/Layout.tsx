@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Building, LogOut, User, Home, FolderOpen, Users, Files, MessageSquare, BarChart3, FileText, CheckSquare, Menu } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import sadhishaLogo from '@/assets/sadhisha-logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,7 +65,7 @@ const AppSidebar = () => {
         {/* Header */}
         <div className="p-4 border-b border-sidebar-border">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <img src={sadhishaLogo} alt="Sadhisha" className="h-6 w-6 object-contain flex-shrink-0" />
+            <Building className="h-6 w-6 text-sidebar-primary flex-shrink-0" />
             {state !== "collapsed" && (
               <div className="min-w-0">
                 <h1 className="text-lg font-bold text-sidebar-foreground truncate">Sadhisha Real CRM</h1>
@@ -172,7 +171,7 @@ const Layout = ({ children }: LayoutProps) => {
         <header className="fixed top-0 left-0 right-0 h-14 bg-card border-b border-border shadow-sm z-50 flex items-center px-4">
           <SidebarTrigger className="mr-4 hover:bg-accent hover:text-accent-foreground" />
           <div className="flex items-center space-x-2">
-            <img src={sadhishaLogo} alt="Sadhisha" className="h-5 w-5 object-contain md:hidden" />
+            <Building className="h-5 w-5 text-primary md:hidden" />
             <span className="font-semibold text-foreground text-sm md:hidden">Sadhisha CRM</span>
           </div>
         </header>
