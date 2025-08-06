@@ -40,9 +40,17 @@ export const useProspects = (projectId?: string) => {
   // Create prospect mutation
   const createProspectMutation = useMutation({
     mutationFn: async (prospect: ProspectInsert) => {
+      // Get user's company_id from profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', user?.id)
+        .single()
+
       // Transform the prospect data for database insertion
       const dbProspect = {
         ...prospect,
+        company_id: profile?.company_id,
         follow_ups: prospect.follow_ups ? JSON.stringify(prospect.follow_ups) : '[]'
       }
       
@@ -81,9 +89,17 @@ export const useProspects = (projectId?: string) => {
   // Bulk create prospects mutation
   const createBulkProspectsMutation = useMutation({
     mutationFn: async (prospects: ProspectInsert[]) => {
+      // Get user's company_id from profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', user?.id)
+        .single()
+
       // Transform the prospects data for database insertion
       const dbProspects = prospects.map(prospect => ({
         ...prospect,
+        company_id: profile?.company_id,
         follow_ups: prospect.follow_ups ? JSON.stringify(prospect.follow_ups) : '[]'
       }))
       
