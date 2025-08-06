@@ -38,7 +38,7 @@ export const useTasks = (projectId?: string) => {
         .from('tasks')
         .insert([{ ...task, created_by: user.id }])
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data as Task
@@ -67,7 +67,7 @@ export const useTasks = (projectId?: string) => {
         .update(updates)
         .eq('id', id)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data as Task

@@ -65,7 +65,7 @@ export const useScripts = (projectId?: string) => {
           created_by: user.id,
         })
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data
@@ -96,7 +96,7 @@ export const useScripts = (projectId?: string) => {
         })
         .eq('id', id)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data

@@ -53,9 +53,9 @@ const YouTubeSearch = ({ onAddVideo }: YouTubeSearchProps) => {
           .from('profiles')
           .select('youtube_api_key')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error || !data) throw error || new Error('Profile not found');
 
         if (data?.youtube_api_key) {
           setApiKey(data.youtube_api_key);

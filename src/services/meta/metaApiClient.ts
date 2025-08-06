@@ -85,7 +85,7 @@ export const createMetaApiClient = async (): Promise<MetaApiClient | null> => {
       .select('access_token, ad_account_id')
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (!facebookIntegration?.access_token || !facebookIntegration?.ad_account_id) {
       throw new Error('Facebook integration not found. Please connect your Facebook account first.')

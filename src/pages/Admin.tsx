@@ -1,9 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, Settings, UserPlus } from 'lucide-react';
+import { Shield, Users, Settings, UserPlus, Key, Mail } from 'lucide-react';
 import { RoleManagement } from '@/components/admin/RoleManagement';
 import UserInvitations from '@/components/admin/UserInvitations';
+import ProductKeyManagement from '@/components/admin/ProductKeyManagement';
+import UpgradeRequestForm from '@/components/admin/UpgradeRequestForm';
+import SystemSettings from '@/components/admin/SystemSettings';
 
 const Admin = () => {
   return (
@@ -25,6 +28,14 @@ const Admin = () => {
             <Users className="h-4 w-4" />
             <span>Role Management</span>
           </TabsTrigger>
+          <TabsTrigger value="product-keys" className="flex items-center space-x-2">
+            <Key className="h-4 w-4" />
+            <span>Product Keys</span>
+          </TabsTrigger>
+          <TabsTrigger value="upgrade-requests" className="flex items-center space-x-2">
+            <Mail className="h-4 w-4" />
+            <span>Upgrade Requests</span>
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
             <span>System Settings</span>
@@ -39,20 +50,16 @@ const Admin = () => {
           <RoleManagement />
         </TabsContent>
 
+        <TabsContent value="product-keys">
+          <ProductKeyManagement />
+        </TabsContent>
+
+        <TabsContent value="upgrade-requests">
+          <UpgradeRequestForm />
+        </TabsContent>
+
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Settings</CardTitle>
-              <CardDescription>
-                Configure system-wide settings and preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                System settings will be implemented here
-              </div>
-            </CardContent>
-          </Card>
+          <SystemSettings />
         </TabsContent>
       </Tabs>
     </div>

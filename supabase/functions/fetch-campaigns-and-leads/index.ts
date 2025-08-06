@@ -5,10 +5,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface FacebookAdAccount {
+  id: string
+  name: string
+}
+
 interface FacebookCampaign {
   id: string
   name: string
-  status: string
 }
 
 interface FacebookAd {
@@ -37,10 +41,7 @@ interface FacebookLead {
 interface ProcessedLead {
   id: string
   campaign_id: string
-  campaign_name: string
-  campaign_status: string
   ad_id: string
-  ad_name: string
   lead_form_id: string
   created_time: string
   name?: string
@@ -56,12 +57,28 @@ async function makeMetaApiCall(endpoint: string, accessToken: string) {
     }
   })
   
+  const responseText = await response.text()
+  
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(`Meta API Error: ${error.error?.message || 'Unknown error'}`)
+    let errorMessage = 'Unknown error'
+    try {
+      const error = JSON.parse(responseText)
+      errorMessage = error.error?.message || 'Unknown error'
+    } catch {
+      errorMessage = `HTTP ${response.status}: ${responseText || 'No response body'}`
+    }
+    throw new Error(`Meta API Error: ${errorMessage}`)
   }
   
-  return await response.json()
+  if (!responseText) {
+    throw new Error('Empty response from Meta API')
+  }
+  
+  try {
+    return JSON.parse(responseText)
+  } catch (parseError) {
+    throw new Error(`Invalid JSON response from Meta API: ${responseText}`)
+  }
 }
 
 function parseLeadFields(fieldData: Array<{ name: string; values: string[] }>): Record<string, any> {
@@ -119,7 +136,10 @@ Deno.serve(async (req) => {
 
     // Parse request body for parameters
     const body = req.method === 'POST' ? await req.json() : {}
-    const { page_id, ad_account_id: requestedAdAccountId, campaign_id: requestedCampaignId } = body
+    const { action, ad_account_id, campaign_id, page_id } = body
+
+    // If no action is specified, default to fetching all campaigns and leads
+    const actionToPerform = action || 'get_all_data'
 
     // Get the user's Facebook integration
     const { data: integration, error: integrationError } = await supabase
@@ -139,91 +159,229 @@ Deno.serve(async (req) => {
       throw new Error('Facebook access token not found')
     }
 
-    // Use requested ad account ID or fall back to stored one
-    const adAccountId = requestedAdAccountId || integration.ad_account_id
-
-    if (!adAccountId) {
-      throw new Error('Ad account ID not specified. Please select a page and ad account first.')
-    }
-
-    console.log('Fetching campaigns for ad account:', adAccountId)
-
-    // First, check if we have the necessary permissions
-    let permissionsCheck
-    try {
-      permissionsCheck = await makeMetaApiCall('/me/permissions', accessToken)
-      console.log('User permissions:', permissionsCheck.data?.map((p: any) => p.permission))
-    } catch (permError) {
-      console.warn('Could not check permissions:', permError)
-    }
-
-    // Fetch campaigns - either specific campaign or all campaigns for the ad account
-    let campaigns: FacebookCampaign[] = []
-    
-    if (requestedCampaignId) {
-      // Fetch specific campaign
-      console.log('Fetching specific campaign:', requestedCampaignId)
-      const campaignResponse = await makeMetaApiCall(
-        `/${requestedCampaignId}?fields=id,name,status`,
+    // Step 1: Get Ad Accounts
+    if (action === 'get_ad_accounts') {
+      console.log('Fetching ad accounts')
+      const adAccountsResponse = await makeMetaApiCall(
+        '/me/adaccounts?fields=id,name',
         accessToken
       )
-      campaigns = [campaignResponse]
-    } else {
-      // Fetch all campaigns for the ad account
+      
+      const adAccounts: FacebookAdAccount[] = adAccountsResponse.data || []
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          ad_accounts: adAccounts
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
+    }
+
+    // Step 2: Get Campaigns for selected Ad Account
+    if (action === 'get_campaigns' && ad_account_id) {
+      console.log('Fetching campaigns for ad account:', ad_account_id)
       const campaignsResponse = await makeMetaApiCall(
-        `/act_${adAccountId}/campaigns?fields=id,name,status&limit=100`,
+        `/${ad_account_id}/campaigns?fields=id,name`,
         accessToken
       )
-      campaigns = campaignsResponse.data || []
+      
+      const campaigns: FacebookCampaign[] = campaignsResponse.data || []
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          campaigns: campaigns
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
     }
-    
-    console.log(`Found ${campaigns.length} campaigns`)
 
-    const allLeads: ProcessedLead[] = []
-    const errorMessages: string[] = []
+    // Step 3: Get Ads for selected Campaign
+    if (action === 'get_ads' && campaign_id) {
+      console.log('Fetching ads for campaign:', campaign_id)
+      const adsResponse = await makeMetaApiCall(
+        `/${campaign_id}/ads?fields=id,name,adcreatives{object_story_spec}`,
+        accessToken
+      )
+      
+      const ads: FacebookAd[] = adsResponse.data || []
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          ads: ads
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
+    }
 
-    // Process each campaign
-    for (const campaign of campaigns) {
-      console.log(`Processing campaign: ${campaign.name} (${campaign.id})`)
+    // Step 4: Get Leads for selected Campaign
+    if (action === 'get_leads' && campaign_id) {
+      console.log('Fetching leads for campaign:', campaign_id)
+      
+      // First get ads for this campaign
+      const adsResponse = await makeMetaApiCall(
+        `/${campaign_id}/ads?fields=id,name,adcreatives{object_story_spec}`,
+        accessToken
+      )
 
-      try {
-        // Fetch ads for this campaign with lead form information
-        const adsResponse = await makeMetaApiCall(
-          `/${campaign.id}/ads?fields=id,name,adcreatives{object_story_spec}&limit=100`,
-          accessToken
-        )
+      const ads: FacebookAd[] = adsResponse.data || []
+      const allLeads: ProcessedLead[] = []
 
-        const ads: FacebookAd[] = adsResponse.data || []
-        console.log(`Found ${ads.length} ads for campaign ${campaign.name}`)
+      // Process each ad to find lead forms
+      for (const ad of ads) {
+        const creatives = ad.adcreatives?.data || []
+        
+        for (const creative of creatives) {
+          const leadFormId = creative.object_story_spec?.link_data?.leadgen_form_id
+          
+          if (leadFormId) {
+            console.log(`Found lead form ${leadFormId} for ad ${ad.name}`)
+            
+            try {
+              // Fetch leads for this form
+              const leadsResponse = await makeMetaApiCall(
+                `/${leadFormId}/leads?fields=id,created_time,field_data`,
+                accessToken
+              )
 
-        // Process each ad
-        for (const ad of ads) {
-          try {
-            // Check if this ad has lead forms
+              const leads: FacebookLead[] = leadsResponse.data || []
+              console.log(`Found ${leads.length} leads for form ${leadFormId}`)
+
+              // Process each lead
+              for (const lead of leads) {
+                const parsedFields = parseLeadFields(lead.field_data || [])
+                
+                const processedLead: ProcessedLead = {
+                  id: lead.id,
+                  campaign_id: campaign_id,
+                  ad_id: ad.id,
+                  lead_form_id: leadFormId,
+                  created_time: lead.created_time,
+                  ...parsedFields
+                }
+
+                allLeads.push(processedLead)
+              }
+            } catch (leadError) {
+              console.error(`Error fetching leads for form ${leadFormId}:`, leadError)
+            }
+          }
+        }
+      }
+
+      // Store leads in database
+      if (allLeads.length > 0) {
+        // Clear existing leads for this campaign
+        await supabase.from('meta_leads').delete().eq('user_id', user.id).eq('campaign_id', campaign_id)
+        
+        const leadRecords = allLeads.map(lead => ({
+          user_id: user.id,
+          lead_id: lead.id,
+          campaign_id: lead.campaign_id,
+          ad_id: lead.ad_id,
+          lead_form_id: lead.lead_form_id,
+          created_time: lead.created_time,
+          name: lead.name || null,
+          email: lead.email || null,
+          phone: lead.phone || null,
+          raw_data: lead
+        }))
+
+        await supabase.from('meta_leads').insert(leadRecords)
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          leads: allLeads,
+          total_leads: allLeads.length
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
+    }
+
+    // Default action: Get all campaigns and leads
+    if (actionToPerform === 'get_all_data') {
+      console.log('Fetching all campaigns and leads')
+      
+      // Use the ad_account_id from integration if not provided
+      const selectedAdAccountId = ad_account_id || integration.ad_account_id
+      
+      if (!selectedAdAccountId) {
+        throw new Error('Ad account ID not found in integration')
+      }
+
+      // Get campaigns for the ad account
+      console.log('Fetching campaigns for ad account:', selectedAdAccountId)
+      const campaignsResponse = await makeMetaApiCall(
+        `/${selectedAdAccountId}/campaigns?fields=id,name,status`,
+        accessToken
+      )
+
+      const campaigns: FacebookCampaign[] = campaignsResponse.data || []
+      const allLeads: ProcessedLead[] = []
+      let totalCampaigns = 0
+
+      // Store campaigns in database
+      if (campaigns.length > 0) {
+        // Clear existing campaigns for this user
+        await supabase.from('meta_campaigns').delete().eq('user_id', user.id)
+        
+        const campaignRecords = campaigns.map(campaign => ({
+          user_id: user.id,
+          campaign_id: campaign.id,
+          name: campaign.name,
+          status: (campaign as any).status || 'UNKNOWN',
+          ad_account_id: selectedAdAccountId
+        }))
+
+        await supabase.from('meta_campaigns').insert(campaignRecords)
+        totalCampaigns = campaigns.length
+      }
+
+      // For each campaign, get leads
+      for (const campaign of campaigns) {
+        console.log(`Fetching leads for campaign: ${campaign.name}`)
+        
+        try {
+          // Get ads for this campaign
+          const adsResponse = await makeMetaApiCall(
+            `/${campaign.id}/ads?fields=id,name,adcreatives{object_story_spec}`,
+            accessToken
+          )
+
+          const ads: FacebookAd[] = adsResponse.data || []
+
+          // Process each ad to find lead forms
+          for (const ad of ads) {
             const creatives = ad.adcreatives?.data || []
             
             for (const creative of creatives) {
               const leadFormId = creative.object_story_spec?.link_data?.leadgen_form_id
               
               if (leadFormId) {
-                console.log(`Found lead form ${leadFormId} for ad ${ad.name}`)
-                
                 try {
                   // Fetch leads for this form
                   const leadsResponse = await makeMetaApiCall(
-                    `/${leadFormId}/leads?fields=id,created_time,field_data&limit=100`,
+                    `/${leadFormId}/leads?fields=id,created_time,field_data`,
                     accessToken
                   )
 
                   const leads: FacebookLead[] = leadsResponse.data || []
-                  console.log(`Found ${leads.length} leads for form ${leadFormId}`)
-                  
-                  if (leads.length === 0) {
-                    console.log(`No leads found for form ${leadFormId} - this could be due to:`)
-                    console.log('1. No leads have been generated yet')
-                    console.log('2. Missing leads_retrieval permission')
-                    console.log('3. App not approved for leads_retrieval in production')
-                  }
 
                   // Process each lead
                   for (const lead of leads) {
@@ -232,10 +390,7 @@ Deno.serve(async (req) => {
                     const processedLead: ProcessedLead = {
                       id: lead.id,
                       campaign_id: campaign.id,
-                      campaign_name: campaign.name,
-                      campaign_status: campaign.status,
                       ad_id: ad.id,
-                      ad_name: ad.name,
                       lead_form_id: leadFormId,
                       created_time: lead.created_time,
                       ...parsedFields
@@ -245,91 +400,61 @@ Deno.serve(async (req) => {
                   }
                 } catch (leadError) {
                   console.error(`Error fetching leads for form ${leadFormId}:`, leadError)
-                  const errorMsg = leadError instanceof Error ? leadError.message : 'Unknown error'
-                  if (errorMsg.includes('permission') || errorMsg.includes('access')) {
-                    errorMessages.push(`Permission denied for lead form ${leadFormId}. Check leads_retrieval permission.`)
-                  } else {
-                    errorMessages.push(`Error fetching leads for form ${leadFormId}: ${errorMsg}`)
-                  }
                 }
               }
             }
-          } catch (adError) {
-            console.error(`Error processing ad ${ad.id}:`, adError)
           }
+        } catch (campaignError) {
+          console.error(`Error fetching data for campaign ${campaign.name}:`, campaignError)
         }
-      } catch (campaignError) {
-        console.error(`Error processing campaign ${campaign.id}:`, campaignError)
       }
-    }
 
-    console.log(`Total leads processed: ${allLeads.length}`)
+      // Store leads in database
+      if (allLeads.length > 0) {
+        // Clear existing leads for this user
+        await supabase.from('meta_leads').delete().eq('user_id', user.id)
+        
+        const leadRecords = allLeads.map(lead => {
+          const campaign = campaigns.find(c => c.id === lead.campaign_id)
+          return {
+            user_id: user.id,
+            lead_id: lead.id,
+            campaign_id: lead.campaign_id,
+            campaign_name: campaign?.name || 'Unknown',
+            campaign_status: (campaign as any)?.status || 'UNKNOWN',
+            ad_id: lead.ad_id,
+            ad_name: `Ad ${lead.ad_id}`,
+            lead_form_id: lead.lead_form_id,
+            created_time: lead.created_time,
+            name: lead.name || null,
+            email: lead.email || null,
+            phone: lead.phone || null,
+            raw_data: lead
+          }
+        })
 
-    // Store campaigns and leads in database for caching
-    // First, clear existing data for this user
-    await supabase.from('meta_campaigns').delete().eq('user_id', user.id)
-    await supabase.from('meta_leads').delete().eq('user_id', user.id)
-
-    // Store campaigns
-    if (campaigns.length > 0) {
-      const campaignRecords = campaigns.map(campaign => ({
-        user_id: user.id,
-        campaign_id: campaign.id,
-        name: campaign.name,
-        status: campaign.status,
-        ad_account_id: adAccountId
-      }))
-
-      await supabase.from('meta_campaigns').insert(campaignRecords)
-    }
-
-    // Store leads
-    if (allLeads.length > 0) {
-      const leadRecords = allLeads.map(lead => ({
-        user_id: user.id,
-        lead_id: lead.id,
-        campaign_id: lead.campaign_id,
-        campaign_name: lead.campaign_name,
-        campaign_status: lead.campaign_status,
-        ad_id: lead.ad_id,
-        ad_name: lead.ad_name,
-        lead_form_id: lead.lead_form_id,
-        created_time: lead.created_time,
-        name: lead.name || null,
-        email: lead.email || null,
-        phone: lead.phone || null,
-        raw_data: lead
-      }))
-
-      await supabase.from('meta_leads').insert(leadRecords)
-    }
-
-    // Provide helpful feedback if no leads were found
-    let statusMessage = ''
-    if (allLeads.length === 0 && campaigns.length > 0) {
-      const campaignContext = requestedCampaignId ? 'campaign' : 'ad account'
-      statusMessage = `No leads found for this ${campaignContext}. This could be because: 1) No lead ads have been created, 2) No leads have been generated yet, 3) Missing leads_retrieval permission, or 4) App needs Facebook review for production use.`
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        campaigns: campaigns,
-        leads: allLeads,
-        summary: {
-          total_campaigns: campaigns.length,
-          total_leads: allLeads.length,
-          ad_account_id: adAccountId
-        },
-        permissions: permissionsCheck?.data?.map((p: any) => p.permission) || [],
-        errors: errorMessages,
-        statusMessage
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
+        await supabase.from('meta_leads').insert(leadRecords)
       }
-    )
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          campaigns: campaigns,
+          leads: allLeads,
+          summary: {
+            total_campaigns: totalCampaigns,
+            total_leads: allLeads.length,
+            ad_account_id: selectedAdAccountId
+          }
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
+    }
+
+    throw new Error('Invalid action or missing parameters')
 
   } catch (error) {
     console.error('Error in fetch-campaigns-and-leads:', error)

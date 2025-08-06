@@ -19,7 +19,8 @@ import {
   Shield,
   Mail,
   MessageCircle,
-  Target
+  Target,
+  HelpCircle
 } from 'lucide-react'
 
 const Layout = () => {
@@ -42,6 +43,7 @@ const Layout = () => {
     { name: 'Properties', href: '/properties', icon: Building2 },
     { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Integrations', href: '/integrations', icon: Plug },
+    { name: 'User Manual', href: '/manual', icon: HelpCircle },
   ]
 
   if (!user) {

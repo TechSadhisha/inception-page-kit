@@ -5,7 +5,9 @@ import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/hooks/useAuth'
 import Layout from '@/Layout'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import RootRedirect from '@/components/RootRedirect'
 import Auth from '@/pages/Auth'
+import Home from '@/pages/Home'
 import Index from '@/pages/Index'
 import Projects from '@/pages/Projects'
 import Prospects from '@/pages/Prospects'
@@ -24,6 +26,8 @@ import WhatsApp from '@/pages/WhatsApp'
 import PropertyListings from '@/pages/PropertyListings'
 import WorkflowAutomation from '@/pages/WorkflowAutomation'
 import Integrations from '@/pages/Integrations'
+import LeadCentre from '@/pages/LeadCentre'
+import UserManual from '@/pages/UserManual'
 import TermsAndConditions from '@/pages/TermsAndConditions'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import DataDeletion from '@/pages/DataDeletion'
@@ -38,10 +42,13 @@ function App() {
         <Router>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route index element={<RootRedirect><Index /></RootRedirect>} />
+              <Route path="dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
               <Route path="projects/:projectId/sheets" element={<ProtectedRoute><ProjectSheets /></ProtectedRoute>} />
+              <Route path="projects/:projectId/lead-centre" element={<ProtectedRoute><LeadCentre /></ProtectedRoute>} />
               <Route path="prospects" element={<ProtectedRoute><Prospects /></ProtectedRoute>} />
               <Route path="tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
               <Route path="messages" element={<ProtectedRoute><TeamMessages /></ProtectedRoute>} />
@@ -56,6 +63,7 @@ function App() {
               <Route path="properties" element={<ProtectedRoute><PropertyListings /></ProtectedRoute>} />
               <Route path="workflows" element={<ProtectedRoute><WorkflowAutomation /></ProtectedRoute>} />
               <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+              <Route path="manual" element={<ProtectedRoute><UserManual /></ProtectedRoute>} />
             </Route>
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

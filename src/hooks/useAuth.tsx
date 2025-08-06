@@ -80,8 +80,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setLoading(true);
     try {
-      await supabase.auth.signOut();
+      // Clean up auth state
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
       setUserRole(null);
+      
+      // Force complete page refresh for clean state
       window.location.href = '/auth';
     } finally {
       setLoading(false);

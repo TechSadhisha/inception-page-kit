@@ -26,7 +26,13 @@ export const useProspects = (projectId?: string) => {
       const { data, error } = await query
 
       if (error) throw error
-      return data as Prospect[]
+      
+      // Transform the data to match our Prospect interface
+      return (data || []).map(row => ({
+        ...row,
+        follow_ups: (row.follow_ups as any) || [],
+        date_added: row.date_added || row.created_at,
+      })) as Prospect[]
     },
     enabled: !!user,
   })
@@ -34,14 +40,26 @@ export const useProspects = (projectId?: string) => {
   // Create prospect mutation
   const createProspectMutation = useMutation({
     mutationFn: async (prospect: ProspectInsert) => {
+      // Transform the prospect data for database insertion
+      const dbProspect = {
+        ...prospect,
+        follow_ups: prospect.follow_ups ? JSON.stringify(prospect.follow_ups) : '[]'
+      }
+      
       const { data, error } = await supabase
         .from('prospects')
-        .insert([prospect])
+        .insert([dbProspect])
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
-      return data as Prospect
+      
+      // Transform back to our interface
+      return {
+        ...data,
+        follow_ups: data.follow_ups ? JSON.parse(data.follow_ups as string) : [],
+        date_added: data.date_added || data.created_at,
+      } as Prospect
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['prospects'] })
@@ -63,13 +81,25 @@ export const useProspects = (projectId?: string) => {
   // Bulk create prospects mutation
   const createBulkProspectsMutation = useMutation({
     mutationFn: async (prospects: ProspectInsert[]) => {
+      // Transform the prospects data for database insertion
+      const dbProspects = prospects.map(prospect => ({
+        ...prospect,
+        follow_ups: prospect.follow_ups ? JSON.stringify(prospect.follow_ups) : '[]'
+      }))
+      
       const { data, error } = await supabase
         .from('prospects')
-        .insert(prospects)
+        .insert(dbProspects)
         .select()
 
       if (error) throw error
-      return data as Prospect[]
+      
+      // Transform back to our interface
+      return (data || []).map(row => ({
+        ...row,
+        follow_ups: row.follow_ups ? JSON.parse(row.follow_ups as string) : [],
+        date_added: row.date_added || row.created_at,
+      })) as Prospect[]
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['prospects'] })
@@ -91,15 +121,30 @@ export const useProspects = (projectId?: string) => {
   // Update prospect mutation
   const updateProspectMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProspectUpdate }) => {
+      // Transform the updates data for database - handle follow_ups carefully
+      const dbUpdates: any = { ...updates }
+      
+      // Only stringify follow_ups if it exists and is an array
+      if (updates.follow_ups && Array.isArray(updates.follow_ups)) {
+        dbUpdates.follow_ups = updates.follow_ups
+      }
+      
       const { data, error } = await supabase
         .from('prospects')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', id)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
-      return data as Prospect
+      
+      // Transform back to our interface
+      return {
+        ...data,
+        follow_ups: Array.isArray(data.follow_ups) ? data.follow_ups : 
+                   typeof data.follow_ups === 'string' ? JSON.parse(data.follow_ups) : [],
+        date_added: data.date_added || data.created_at,
+      } as Prospect
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['prospects'] })

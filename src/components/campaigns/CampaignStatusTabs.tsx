@@ -25,11 +25,11 @@ interface CampaignStatusTabsProps {
 export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsProps) => {
   const [searchTerm, setSearchTerm] = useState('')
   
-  const activeCampaigns = campaigns.filter(c => c.status.toLowerCase() === 'active')
-  const otherCampaigns = campaigns.filter(c => c.status.toLowerCase() !== 'active')
+  const activeCampaigns = campaigns.filter(c => c.status?.toLowerCase() === 'active')
+  const otherCampaigns = campaigns.filter(c => c.status?.toLowerCase() !== 'active')
 
   const getStatusVariant = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'active':
         return 'default'
       case 'paused':
@@ -42,7 +42,7 @@ export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsPro
   }
 
   const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'active':
         return <Play className="h-3 w-3" />
       case 'paused':
@@ -55,8 +55,8 @@ export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsPro
   const filterCampaigns = (campaignList: MetaCampaign[]) => {
     return campaignList.filter(campaign =>
       !searchTerm || 
-      campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campaign.campaign_id.includes(searchTerm)
+      campaign.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      campaign.campaign_id?.includes(searchTerm)
     )
   }
 
@@ -129,16 +129,16 @@ export const CampaignStatusTabs = ({ campaigns, loading }: CampaignStatusTabsPro
                         {campaign.name}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusVariant(campaign.status)} className="flex items-center gap-1 w-fit">
-                          {getStatusIcon(campaign.status)}
-                          {campaign.status}
+                        <Badge variant={getStatusVariant(campaign.status || 'unknown')} className="flex items-center gap-1 w-fit">
+                          {getStatusIcon(campaign.status || 'unknown')}
+                          {campaign.status || 'Unknown'}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
-                        {campaign.campaign_id}
+                        {campaign.campaign_id || campaign.id}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {campaign.ad_account_id}
+                        {campaign.ad_account_id || 'N/A'}
                       </TableCell>
                       <TableCell>
                         {campaign.created_at ? format(new Date(campaign.created_at), 'MMM dd, yyyy') : 'N/A'}

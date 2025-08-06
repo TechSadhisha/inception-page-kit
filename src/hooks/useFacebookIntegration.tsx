@@ -59,7 +59,7 @@ export const useFacebookIntegration = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .single()
+        .maybeSingle()
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading Facebook integration:', error)

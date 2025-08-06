@@ -61,7 +61,7 @@ export const useGmailAccounts = () => {
           is_connected: false,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -113,7 +113,7 @@ export const useGmailAccounts = () => {
         .update(updateData)
         .eq('id', accountId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;

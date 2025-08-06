@@ -27,7 +27,7 @@ export const ProspectForm = ({ prospect, projectId, onSubmit, isLoading, initial
     name: '',
     email: '',
     phone: '',
-    status: 'new' as 'new' | 'contacted' | 'qualified' | 'converted' | 'lost',
+    status: 'new' as 'new' | 'contacted' | 'qualified' | 'converted' | 'dropped' | 'lost',
     interest_rating: 0,
     notes: '',
   })
@@ -122,6 +122,7 @@ export const ProspectForm = ({ prospect, projectId, onSubmit, isLoading, initial
             <SelectItem value="contacted">Contacted</SelectItem>
             <SelectItem value="qualified">Qualified</SelectItem>
             <SelectItem value="converted">Converted</SelectItem>
+            <SelectItem value="dropped">Dropped</SelectItem>
             <SelectItem value="lost">Lost</SelectItem>
           </SelectContent>
         </Select>

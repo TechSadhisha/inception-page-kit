@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Edit, Trash2, FileSpreadsheet } from 'lucide-react'
+import { Edit, Trash2, FileSpreadsheet, Target } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Project {
@@ -33,6 +33,10 @@ export const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => 
     navigate(`/projects/${project.id}/sheets`)
   }
 
+  const handleLeadCentreClick = () => {
+    navigate(`/projects/${project.id}/lead-centre`)
+  }
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -45,6 +49,14 @@ export const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => 
           )}
         </div>
         <div className="flex space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLeadCentreClick}
+            title="Lead Centre"
+          >
+            <Target className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"

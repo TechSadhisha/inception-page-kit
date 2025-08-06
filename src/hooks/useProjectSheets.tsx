@@ -54,7 +54,7 @@ export const useProjectSheets = (projectId: string) => {
           user_id: user.id
         }])
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return data as ProjectSheet

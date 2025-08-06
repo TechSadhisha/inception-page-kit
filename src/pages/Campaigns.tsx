@@ -25,6 +25,7 @@ const Campaigns = () => {
   const [leadsData, setLeadsData] = useState({
     campaigns: [],
     leads: [],
+    total_leads: 0,
     summary: null
   })
 
@@ -32,7 +33,7 @@ const Campaigns = () => {
   useEffect(() => {
     const handleAuthSuccess = () => {
       // Clear all old data and reload integration
-      setLeadsData({ campaigns: [], leads: [], summary: null })
+      setLeadsData({ campaigns: [], leads: [], total_leads: 0, summary: null })
       refreshIntegration()
     }
     
