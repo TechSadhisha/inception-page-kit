@@ -24,7 +24,7 @@ export default function LeadCentre() {
   console.log('LeadCentre - current URL:', window.location.href)
   console.log('LeadCentre - useParams result:', useParams())
 
-  const { prospects: leads, isLoading, createProspect, createBulkProspects, updateProspect } = useProspects(projectId)
+  const { prospects: leads, isLoading, createProspect, createBulkProspects, updateProspect, deleteProspect } = useProspects(projectId)
   const { projects } = useProjects()
   
   const currentProject = projects?.find(p => p.id === projectId)
@@ -153,7 +153,7 @@ export default function LeadCentre() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <LeadList projectId={projectId} leads={leads} onUpdateLead={(id, updates) => updateProspect(id, updates)} />
+          <LeadList projectId={projectId} leads={leads} onUpdateLead={(id, updates) => updateProspect(id, updates)} onDeleteLead={(id) => deleteProspect(id)} />
         </TabsContent>
 
         <TabsContent value="sources" className="space-y-4">

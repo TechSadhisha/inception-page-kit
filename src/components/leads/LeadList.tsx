@@ -5,9 +5,10 @@ interface LeadListProps {
   projectId?: string
   leads?: Prospect[]
   onUpdateLead: (id: string, updates: ProspectUpdate) => void
+  onDeleteLead: (id: string) => void
 }
 
-export function LeadList({ projectId, leads = [], onUpdateLead }: LeadListProps) {
+export function LeadList({ projectId, leads = [], onUpdateLead, onDeleteLead }: LeadListProps) {
   const exportLeads = () => {
     if (leads.length === 0) return
 
@@ -60,6 +61,7 @@ export function LeadList({ projectId, leads = [], onUpdateLead }: LeadListProps)
     <EditableLeadsTable
       leads={leads}
       onUpdateLead={onUpdateLead}
+      onDeleteLead={onDeleteLead}
       onExport={exportLeads}
     />
   )

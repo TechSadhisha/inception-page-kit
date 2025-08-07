@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { format } from 'date-fns'
-import { Calendar, ChevronDown, Plus, X, Save, Download, Search } from 'lucide-react'
+import { Calendar, ChevronDown, Plus, X, Save, Download, Search, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast'
 interface EditableLeadsTableProps {
   leads: Prospect[]
   onUpdateLead: (id: string, updates: ProspectUpdate) => void
+  onDeleteLead: (id: string) => void
   onExport: () => void
   isLoading?: boolean
 }
@@ -122,7 +123,7 @@ const FollowUpRow = memo(({ followUp, index, onUpdate, onRemove }: {
   )
 })
 
-export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }: EditableLeadsTableProps) => {
+export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport, isLoading }: EditableLeadsTableProps) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null)
   const [editingFollowUps, setEditingFollowUps] = useState<{ leadId: string; followUps: FollowUp[] } | null>(null)
@@ -500,6 +501,7 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                   <TableHead>First Contact</TableHead>
                   <TableHead>Follow-ups</TableHead>
                   <TableHead>Days in Follow-up</TableHead>
+                  <TableHead className="w-16">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -542,6 +544,27 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Days between date added and latest follow-up</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete ${lead.name}? This action cannot be undone.`)) {
+                                onDeleteLead(lead.id)
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete lead</p>
                         </TooltipContent>
                       </Tooltip>
                     </TableCell>
