@@ -386,7 +386,10 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
   }
 
   const FollowUpCell = ({ lead }: { lead: Prospect }) => {
-    const followUps = lead.follow_ups || []
+    // Ensure follow_ups is always an array, regardless of database format
+    const followUps = Array.isArray(lead.follow_ups) ? lead.follow_ups : 
+                     (typeof lead.follow_ups === 'string' && lead.follow_ups !== '[]') ? 
+                     JSON.parse(lead.follow_ups) : []
     const isDialogOpen = editingFollowUps?.leadId === lead.id
 
     const handleEditClick = () => {
