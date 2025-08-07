@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Prospect, FollowUp, ProspectUpdate } from '@/types/prospect'
 import { useToast } from '@/hooks/use-toast'
 
@@ -20,6 +21,7 @@ interface EditableLeadsTableProps {
   leads: Prospect[]
   onUpdateLead: (id: string, updates: ProspectUpdate) => void
   onDeleteLead: (id: string) => void
+  onBulkDelete?: (ids: string[]) => void
   onExport: () => void
   isLoading?: boolean
 }
@@ -123,10 +125,11 @@ const FollowUpRow = memo(({ followUp, index, onUpdate, onRemove }: {
   )
 })
 
-export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport, isLoading }: EditableLeadsTableProps) => {
+export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onBulkDelete, onExport, isLoading }: EditableLeadsTableProps) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null)
   const [editingFollowUps, setEditingFollowUps] = useState<{ leadId: string; followUps: FollowUp[] } | null>(null)
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
   // Filter leads based on search term
@@ -135,6 +138,43 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport
     lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Selection handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedLeads(new Set(filteredLeads.map(lead => lead.id)))
+    } else {
+      setSelectedLeads(new Set())
+    }
+  }
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    const newSelected = new Set(selectedLeads)
+    if (checked) {
+      newSelected.add(leadId)
+    } else {
+      newSelected.delete(leadId)
+    }
+    setSelectedLeads(newSelected)
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedLeads.size === 0) return
+    
+    const selectedCount = selectedLeads.size
+    if (confirm(`Are you sure you want to delete ${selectedCount} selected lead${selectedCount > 1 ? 's' : ''}? This action cannot be undone.`)) {
+      if (onBulkDelete) {
+        onBulkDelete(Array.from(selectedLeads))
+      } else {
+        // Fallback to individual deletes
+        Array.from(selectedLeads).forEach(id => onDeleteLead(id))
+      }
+      setSelectedLeads(new Set())
+    }
+  }
+
+  const isAllSelected = filteredLeads.length > 0 && selectedLeads.size === filteredLeads.length
+  const isIndeterminate = selectedLeads.size > 0 && selectedLeads.size < filteredLeads.length
 
   const getStatusBadge = (status: string) => {
     const statusConfig = statusOptions.find(s => s.value === status)
@@ -479,6 +519,21 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport
                   className="pl-10 w-64"
                 />
               </div>
+              {selectedLeads.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {selectedLeads.size} selected
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleBulkDelete}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected
+                  </Button>
+                </div>
+              )}
               <Button onClick={onExport} size="sm">
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
@@ -491,6 +546,13 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      className={cn(isIndeterminate && "data-[state=indeterminate]:bg-primary")}
+                    />
+                  </TableHead>
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
@@ -508,8 +570,15 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onDeleteLead, onExport
                 {filteredLeads.map((lead, index) => (
                   <TableRow key={lead.id} className={cn(
                     lead.status === 'qualified' && 'bg-green-50',
-                    lead.status === 'converted' && 'bg-purple-50'
+                    lead.status === 'converted' && 'bg-purple-50',
+                    selectedLeads.has(lead.id) && 'bg-muted/50'
                   )}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedLeads.has(lead.id)}
+                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
                       <EditableCell lead={lead} field="name" value={lead.name} />
