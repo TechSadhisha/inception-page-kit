@@ -14,12 +14,16 @@ export const useProspects = (projectId?: string) => {
   const { data: prospects, isLoading, error } = useQuery({
     queryKey: ['prospects', projectId],
     queryFn: async () => {
+      console.log('useProspects - queryFn called with projectId:', projectId)
+      console.log('useProspects - projectId type:', typeof projectId)
+      
       let query = supabase
         .from('prospects')
         .select('*')
         .order('created_at', { ascending: false })
 
       if (projectId) {
+        console.log('useProspects - Adding project_id filter:', projectId)
         query = query.eq('project_id', projectId)
       }
 

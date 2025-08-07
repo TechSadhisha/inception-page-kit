@@ -20,6 +20,10 @@ export default function LeadCentre() {
   const [showManualEntry, setShowManualEntry] = useState(false)
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
+  console.log('LeadCentre - projectId from params:', projectId)
+  console.log('LeadCentre - current URL:', window.location.href)
+  console.log('LeadCentre - useParams result:', useParams())
+
   const { prospects: leads, isLoading, createProspect, createBulkProspects, updateProspect } = useProspects(projectId)
   const { projects } = useProjects()
   
