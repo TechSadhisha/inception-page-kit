@@ -16,7 +16,8 @@ interface ProspectFormProps {
     name: string
     email: string
     phone: string
-    status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
+    source?: string
+    status: 'new' | 'contacted' | 'qualified' | 'converted' | 'dropped' | 'lost'
     interest_rating: number
     notes: string
   }
@@ -27,6 +28,7 @@ export const ProspectForm = ({ prospect, projectId, onSubmit, isLoading, initial
     name: '',
     email: '',
     phone: '',
+    source: 'manual',
     status: 'new' as 'new' | 'contacted' | 'qualified' | 'converted' | 'dropped' | 'lost',
     interest_rating: 0,
     notes: '',
@@ -38,17 +40,22 @@ export const ProspectForm = ({ prospect, projectId, onSubmit, isLoading, initial
         name: prospect.name || '',
         email: prospect.email || '',
         phone: prospect.phone || '',
+        source: prospect.source || 'manual',
         status: prospect.status || 'new',
         interest_rating: prospect.interest_rating || 0,
         notes: prospect.notes || '',
       })
     } else if (initialData) {
-      setFormData(initialData)
+      setFormData({
+        ...initialData,
+        source: initialData.source || 'manual'
+      })
     } else {
       setFormData({
         name: '',
         email: '',
         phone: '',
+        source: 'manual',
         status: 'new',
         interest_rating: 0,
         notes: '',
@@ -109,6 +116,25 @@ export const ProspectForm = ({ prospect, projectId, onSubmit, isLoading, initial
             placeholder="Enter phone number"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="source">Source</Label>
+        <Select value={formData.source} onValueChange={(value) => handleInputChange('source', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select source" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="manual">Manual</SelectItem>
+            <SelectItem value="facebook_ad">Facebook Ad</SelectItem>
+            <SelectItem value="google">Google</SelectItem>
+            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+            <SelectItem value="website">Website</SelectItem>
+            <SelectItem value="referral">Referral</SelectItem>
+            <SelectItem value="cold_call">Cold Call</SelectItem>
+            <SelectItem value="email_campaign">Email Campaign</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

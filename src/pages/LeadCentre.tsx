@@ -32,7 +32,11 @@ export default function LeadCentre() {
   const convertedLeads = leads?.filter(lead => lead.status === 'converted').length || 0
 
   const handleManualLeadCreate = async (leadData: any) => {
-    if (!projectId) return
+    console.log('Creating lead with projectId:', projectId, 'leadData:', leadData)
+    if (!projectId) {
+      console.error('No projectId available')
+      return
+    }
     await createProspect({
       project_id: projectId,
       ...leadData
@@ -41,7 +45,11 @@ export default function LeadCentre() {
   }
 
   const handleBulkLeadUpload = async (leadsData: any[]) => {
-    if (!projectId) return
+    console.log('Bulk uploading leads with projectId:', projectId, 'leadsData:', leadsData)
+    if (!projectId) {
+      console.error('No projectId available for bulk upload')
+      return
+    }
     const formattedLeads = leadsData.map(lead => ({
       project_id: projectId,
       ...lead

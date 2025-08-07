@@ -5,6 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { CalendarIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 
 interface ManualLeadEntryProps {
@@ -19,9 +24,11 @@ export function ManualLeadEntry({ open, onClose, onSubmit }: ManualLeadEntryProp
     name: '',
     email: '',
     phone: '',
+    source: 'Manual',
     status: 'new',
     interest_rating: 3,
-    notes: ''
+    notes: '',
+    first_contact_date: undefined as Date | undefined
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -36,14 +43,19 @@ export function ManualLeadEntry({ open, onClose, onSubmit }: ManualLeadEntryProp
       return
     }
 
-    onSubmit(formData)
+    onSubmit({
+      ...formData,
+      first_contact_date: formData.first_contact_date ? formData.first_contact_date.toISOString() : null
+    })
     setFormData({
       name: '',
       email: '',
       phone: '',
+      source: 'Manual',
       status: 'new',
       interest_rating: 3,
-      notes: ''
+      notes: '',
+      first_contact_date: undefined
     })
   }
 
@@ -87,6 +99,25 @@ export function ManualLeadEntry({ open, onClose, onSubmit }: ManualLeadEntryProp
           </div>
           
           <div>
+            <Label htmlFor="source">Source</Label>
+            <Select value={formData.source} onValueChange={(value) => setFormData(prev => ({ ...prev, source: value }))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Manual">Manual</SelectItem>
+                <SelectItem value="Facebook Ad">Facebook Ad</SelectItem>
+                <SelectItem value="Google">Google</SelectItem>
+                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                <SelectItem value="Website">Website</SelectItem>
+                <SelectItem value="Referral">Referral</SelectItem>
+                <SelectItem value="Cold Call">Cold Call</SelectItem>
+                <SelectItem value="Email Campaign">Email Campaign</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
             <Label htmlFor="status">Status</Label>
             <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
               <SelectTrigger>
@@ -96,6 +127,9 @@ export function ManualLeadEntry({ open, onClose, onSubmit }: ManualLeadEntryProp
                 <SelectItem value="new">New</SelectItem>
                 <SelectItem value="contacted">Contacted</SelectItem>
                 <SelectItem value="qualified">Qualified</SelectItem>
+                <SelectItem value="converted">Converted</SelectItem>
+                <SelectItem value="dropped">Dropped</SelectItem>
+                <SelectItem value="lost">Lost</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -114,6 +148,32 @@ export function ManualLeadEntry({ open, onClose, onSubmit }: ManualLeadEntryProp
                 <SelectItem value="5">5 - Very High</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          <div>
+            <Label>First Contact Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !formData.first_contact_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.first_contact_date ? format(formData.first_contact_date, "PPP") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={formData.first_contact_date}
+                  onSelect={(date) => setFormData(prev => ({ ...prev, first_contact_date: date }))}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           <div>
