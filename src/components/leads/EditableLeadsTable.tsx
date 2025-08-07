@@ -141,13 +141,16 @@ export const EditableLeadsTable = ({ leads, onUpdateLead, onExport, isLoading }:
   }
 
   const calculateDaysInFollowUp = (lead: Prospect) => {
-    if (!lead.follow_ups || lead.follow_ups.length === 0) {
+    // Ensure follow_ups is always an array
+    const followUps = Array.isArray(lead.follow_ups) ? lead.follow_ups : []
+    
+    if (followUps.length === 0) {
       const dateAdded = new Date(lead.date_added)
       const today = new Date()
       return Math.floor((today.getTime() - dateAdded.getTime()) / (1000 * 60 * 60 * 24))
     }
 
-    const latestFollowUp = lead.follow_ups
+    const latestFollowUp = followUps
       .map(f => new Date(f.date))
       .sort((a, b) => b.getTime() - a.getTime())[0]
     
