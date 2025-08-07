@@ -21,6 +21,7 @@ interface BulkLeadUploadProps {
 export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: BulkLeadUploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [previewData, setPreviewData] = useState<any[]>([])
+  const [allLeadsData, setAllLeadsData] = useState<any[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -129,6 +130,7 @@ export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: B
         })
 
         setErrors(validationErrors)
+        setAllLeadsData(leads) // Store all leads
         setPreviewData(leads.slice(0, 10)) // Show first 10 for preview
         
       } catch (error) {
@@ -167,7 +169,7 @@ export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: B
       }, 200)
 
       // Remove rowIndex from data before upload
-      const cleanedData = previewData.map(({ rowIndex, ...lead }) => lead)
+      const cleanedData = allLeadsData.map(({ rowIndex, ...lead }) => lead)
       
       await onUpload(cleanedData)
       
@@ -181,6 +183,7 @@ export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: B
       // Reset form
       setFile(null)
       setPreviewData([])
+      setAllLeadsData([])
       setErrors([])
       
       if (onClose) onClose()
@@ -275,7 +278,7 @@ export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: B
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              Preview ({previewData.length} leads ready to upload)
+              Preview ({allLeadsData.length} leads ready to upload - showing first 10)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -311,7 +314,7 @@ export function BulkLeadUpload({ projectId, onUpload, open = false, onClose }: B
                 className="flex items-center gap-2"
               >
                 <Upload className="h-4 w-4" />
-                Upload {previewData.length} Leads
+                Upload {allLeadsData.length} Leads
               </Button>
             </div>
           </CardContent>
