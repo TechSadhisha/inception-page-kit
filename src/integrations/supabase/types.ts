@@ -654,35 +654,44 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           company_id: string | null
           company_role: Database["public"]["Enums"]["company_role"] | null
           created_at: string | null
           email: string
           full_name: string | null
           id: string
+          phone: string | null
           role: string | null
+          timezone: string | null
           updated_at: string | null
           youtube_api_key: string | null
         }
         Insert: {
+          avatar_url?: string | null
           company_id?: string | null
           company_role?: Database["public"]["Enums"]["company_role"] | null
           created_at?: string | null
           email: string
           full_name?: string | null
           id: string
+          phone?: string | null
           role?: string | null
+          timezone?: string | null
           updated_at?: string | null
           youtube_api_key?: string | null
         }
         Update: {
+          avatar_url?: string | null
           company_id?: string | null
           company_role?: Database["public"]["Enums"]["company_role"] | null
           created_at?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          phone?: string | null
           role?: string | null
+          timezone?: string | null
           updated_at?: string | null
           youtube_api_key?: string | null
         }
