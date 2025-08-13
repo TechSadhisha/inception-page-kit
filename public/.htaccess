@@ -27,12 +27,7 @@ RewriteEngine On
 # Handle Angular and React Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^crm/ /crm/index.html [QSA,L]
-
-# Fallback for direct access to /crm path
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /crm/index.html [QSA,L]
+RewriteRule . /index.html [QSA,L]
 
 # Cache static assets
 <IfModule mod_expires.c>

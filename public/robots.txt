@@ -2,29 +2,29 @@ User-agent: *
 Allow: /
 
 # Allow access to main app paths
-Allow: /crm/
-Allow: /crm/auth
-Allow: /crm/home
-Allow: /crm/dashboard
-Allow: /crm/projects
-Allow: /crm/prospects
-Allow: /crm/tasks
-Allow: /crm/messages
-Allow: /crm/reports
-Allow: /crm/scripts
-Allow: /crm/files
-Allow: /crm/knowledge
-Allow: /crm/emails
-Allow: /crm/whatsapp
-Allow: /crm/campaigns
-Allow: /crm/properties
-Allow: /crm/workflows
-Allow: /crm/integrations
+Allow: /
+Allow: /auth
+Allow: /home
+Allow: /dashboard
+Allow: /projects
+Allow: /prospects
+Allow: /tasks
+Allow: /messages
+Allow: /reports
+Allow: /scripts
+Allow: /files
+Allow: /knowledge
+Allow: /emails
+Allow: /whatsapp
+Allow: /campaigns
+Allow: /properties
+Allow: /workflows
+Allow: /integrations
 
 # Block sensitive admin paths
-Disallow: /crm/admin
+Disallow: /admin
 
 # Block API endpoints
-Disallow: /crm/api/
+Disallow: /api/
 
-Sitemap: https://ai.sadhisha.com/crm/sitemap.xml
+Sitemap: https://ai.sadhisha.com/sitemap.xml

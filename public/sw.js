@@ -1,8 +1,8 @@
 const CACHE_NAME = 'sadhisha-crm-v1';
 const urlsToCache = [
-  '/crm/',
-  '/crm/index.html',
-  '/crm/manifest.json'
+  '/',
+  '/index.html',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
