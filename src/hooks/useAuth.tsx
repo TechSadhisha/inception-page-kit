@@ -27,16 +27,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        setUserRole('admin'); // Simplified - all users are admin for now
+        
+        // Fetch actual user role from database
+        if (session?.user?.id) {
+          try {
+            const { data: roleData } = await supabase.rpc('get_user_role', { 
+              _user_id: session.user.id 
+            });
+            setUserRole(roleData || null);
+          } catch (error) {
+            console.error('Error fetching user role:', error);
+            setUserRole(null);
+          }
+        } else {
+          setUserRole(null);
+        }
+        
         setLoading(false);
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setUserRole(session?.user ? 'admin' : null); // Simplified
+      
+      // Fetch actual user role from database
+      if (session?.user?.id) {
+        try {
+          const { data: roleData } = await supabase.rpc('get_user_role', { 
+            _user_id: session.user.id 
+          });
+          setUserRole(roleData || null);
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+          setUserRole(null);
+        }
+      } else {
+        setUserRole(null);
+      }
+      
       setLoading(false);
     });
 

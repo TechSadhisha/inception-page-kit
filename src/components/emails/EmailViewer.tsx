@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trash2, MailOpen } from 'lucide-react';
 import { Email } from '@/hooks/useEmails';
 import { format } from 'date-fns';
+import DOMPurify from 'dompurify';
 
 interface EmailViewerProps {
   email: Email;
@@ -21,6 +22,7 @@ const EmailViewer: React.FC<EmailViewerProps> = ({
   onDeleteEmail,
 }) => {
   const displayContent = email.body_html || email.body_text || 'No content available';
+  const sanitizedHtml = email.body_html ? DOMPurify.sanitize(email.body_html) : null;
 
   return (
     <div className="space-y-4">
@@ -85,14 +87,14 @@ const EmailViewer: React.FC<EmailViewerProps> = ({
         </CardHeader>
         <CardContent>
           <div className="prose max-w-none">
-            {email.body_html ? (
+            {email.body_html && sanitizedHtml ? (
               <div 
-                dangerouslySetInnerHTML={{ __html: displayContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                 className="email-content"
               />
             ) : (
               <pre className="whitespace-pre-wrap font-sans text-sm">
-                {displayContent}
+                {email.body_text || 'No content available'}
               </pre>
             )}
           </div>

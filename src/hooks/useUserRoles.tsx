@@ -130,17 +130,17 @@ export const useUserRoles = () => {
     },
   });
 
-  // Simplified role checking functions - all return true for now to remove restrictions
+  // Proper role checking functions based on actual database data
   const hasRole = (role: AppRole): boolean => {
-    return true; // Simplified - no restrictions
+    return currentUserRole === role;
   };
 
   const canManageProjects = (): boolean => {
-    return true; // All users can manage projects
+    return currentUserRole === 'admin' || currentUserRole === 'manager';
   };
 
   const isAdmin = (): boolean => {
-    return true; // All users have admin access for now
+    return currentUserRole === 'admin';
   };
 
   return {
