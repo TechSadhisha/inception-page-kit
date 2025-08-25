@@ -19,7 +19,10 @@ const Index = () => {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Sadhisha Real CRM Dashboard</h1>
+          <div className="flex items-center space-x-3 mb-2">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Sadhisha Real CRM Dashboard</h1>
+          </div>
           <p className="text-sm sm:text-base text-muted-foreground">
             Welcome back, {user?.user_metadata?.full_name || user?.email}
           </p>

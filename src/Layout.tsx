@@ -57,7 +57,10 @@ const Layout = () => {
         <div className="w-64 bg-card border-r border-border">
           <div className="flex flex-col h-full">
             <div className="p-6">
-              <h1 className="text-xl font-bold text-foreground">Real Estate CRM</h1>
+              <div className="flex items-center space-x-3">
+                <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+                <h1 className="text-xl font-bold text-foreground">Sadhisha Real CRM</h1>
+              </div>
             </div>
             
             <nav className="flex-1 px-4 space-y-2">
