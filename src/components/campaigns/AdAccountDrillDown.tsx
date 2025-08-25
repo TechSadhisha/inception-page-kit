@@ -46,6 +46,25 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
     })
   }
 
+  // Listen for disconnect events to clear local state
+  useEffect(() => {
+    const handleDisconnect = () => {
+      setAdAccounts([])
+      setCampaigns([])
+      setSelectedAdAccountId('')
+      setSelectedCampaignId('')
+      clearLeadsData()
+    }
+
+    window.addEventListener('facebookDisconnected', handleDisconnect)
+    window.addEventListener('clearCampaignData', handleDisconnect)
+
+    return () => {
+      window.removeEventListener('facebookDisconnected', handleDisconnect)
+      window.removeEventListener('clearCampaignData', handleDisconnect)
+    }
+  }, [])
+
   // Step 1: Get Ad Accounts
   const fetchAdAccounts = async () => {
     if (!isConnected || !hasValidToken) return
@@ -152,6 +171,13 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
   useEffect(() => {
     if (isConnected && hasValidToken) {
       fetchAdAccounts()
+    } else {
+      // Clear data when not connected
+      setAdAccounts([])
+      setCampaigns([])
+      setSelectedAdAccountId('')
+      setSelectedCampaignId('')
+      clearLeadsData()
     }
   }, [isConnected, hasValidToken])
 
@@ -205,7 +231,15 @@ export const AdAccountDrillDown = ({ onLeadsDataReady }: AdAccountDrillDownProps
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={disconnect}
+                  onClick={async () => {
+                    await disconnect()
+                    // Clear local state after disconnect
+                    setAdAccounts([])
+                    setCampaigns([])
+                    setSelectedAdAccountId('')
+                    setSelectedCampaignId('')
+                    clearLeadsData()
+                  }}
                   disabled={connecting}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >

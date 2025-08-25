@@ -37,6 +37,11 @@ const Campaigns = () => {
       refreshIntegration()
     }
     
+    const handleDisconnected = () => {
+      // Clear all campaign data when disconnected
+      setLeadsData({ campaigns: [], leads: [], total_leads: 0, summary: null })
+    }
+    
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
         handleAuthSuccess()
@@ -44,6 +49,8 @@ const Campaigns = () => {
     }
     
     window.addEventListener('message', handleMessage)
+    window.addEventListener('facebookDisconnected', handleDisconnected)
+    window.addEventListener('clearCampaignData', handleDisconnected)
     
     // Check URL params for auth success
     const urlParams = new URLSearchParams(window.location.search)
@@ -53,7 +60,11 @@ const Campaigns = () => {
       window.history.replaceState({}, '', '/campaigns')
     }
     
-    return () => window.removeEventListener('message', handleMessage)
+    return () => {
+      window.removeEventListener('message', handleMessage)
+      window.removeEventListener('facebookDisconnected', handleDisconnected)
+      window.removeEventListener('clearCampaignData', handleDisconnected)
+    }
   }, [refreshIntegration])
 
   const handleCreateCampaign = () => {
@@ -74,6 +85,9 @@ const Campaigns = () => {
         <div>
           <h1 className="text-3xl font-bold">Ad Campaigns</h1>
           <p className="text-muted-foreground">Loading campaign integration status...</p>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
     )

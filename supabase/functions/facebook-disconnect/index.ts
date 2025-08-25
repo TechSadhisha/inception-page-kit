@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
 
     // Set the auth token
     const token = authHeader.substring(7);
-    supabase.auth.setSession({
+    await supabase.auth.setSession({
       access_token: token,
       refresh_token: '',
     });

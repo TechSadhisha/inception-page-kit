@@ -163,10 +163,6 @@ export const useFacebookIntegration = () => {
         description: "Facebook integration and all associated data have been removed"
       })
       
-      // Force a complete refresh to ensure clean state
-      setTimeout(() => {
-        window.location.href = '/campaigns'
-      }, 1500)
     } catch (error) {
       console.error('Error disconnecting Facebook:', error)
       toast({
