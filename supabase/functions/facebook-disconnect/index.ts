@@ -12,16 +12,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        auth: {
-          persistSession: false,
-        },
-      }
-    )
-
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -34,16 +24,27 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Set the auth token
-    const token = authHeader.substring(7);
-    await supabase.auth.setSession({
-      access_token: token,
-      refresh_token: '',
-    });
+    // Create Supabase client with proper auth headers
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+        },
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    )
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // Get current user using the JWT token
+    const token = authHeader.substring(7);
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (userError || !user) {
+      console.error('Auth error:', userError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { 
