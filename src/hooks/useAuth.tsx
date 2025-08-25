@@ -23,55 +23,92 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setUserRole(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          // Fetch user role if user exists
+          if (session?.user?.id) {
+            try {
+              const { data: roleData } = await supabase.rpc('get_user_role', { 
+                _user_id: session.user.id 
+              });
+              if (mounted) setUserRole(roleData || null);
+            } catch (roleError) {
+              console.error('Error fetching user role:', roleError);
+              if (mounted) setUserRole(null);
+            }
+          } else {
+            if (mounted) setUserRole(null);
+          }
+          
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setLoading(false);
+        }
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        
+        if (!mounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch actual user role from database
+        // Fetch user role if user exists
         if (session?.user?.id) {
           try {
             const { data: roleData } = await supabase.rpc('get_user_role', { 
               _user_id: session.user.id 
             });
-            setUserRole(roleData || null);
+            if (mounted) setUserRole(roleData || null);
           } catch (error) {
             console.error('Error fetching user role:', error);
-            setUserRole(null);
+            if (mounted) setUserRole(null);
           }
         } else {
-          setUserRole(null);
+          if (mounted) setUserRole(null);
         }
         
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      // Fetch actual user role from database
-      if (session?.user?.id) {
-        try {
-          const { data: roleData } = await supabase.rpc('get_user_role', { 
-            _user_id: session.user.id 
-          });
-          setUserRole(roleData || null);
-        } catch (error) {
-          console.error('Error fetching user role:', error);
-          setUserRole(null);
-        }
-      } else {
-        setUserRole(null);
-      }
-      
-      setLoading(false);
-    });
+    // Initialize auth state
+    initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
