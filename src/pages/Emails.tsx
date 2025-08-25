@@ -45,7 +45,10 @@ const Emails = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">Email Management</h1>
+          <div className="flex items-center space-x-3">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+            <h1 className="text-3xl font-bold text-foreground">Sadhisha Real CRM - Email Management</h1>
+          </div>
           <Button variant="outline" onClick={() => signOut()}>
             Disconnect Gmail
           </Button>
@@ -65,7 +68,10 @@ const Emails = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold text-foreground">Email Management</h1>
+          <div className="flex items-center space-x-3">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+            <h1 className="text-3xl font-bold text-foreground">Sadhisha Real CRM - Email Management</h1>
+          </div>
           {unreadCount > 0 && (
             <Badge variant="default" className="px-3 py-1">
               {unreadCount} unread

@@ -339,7 +339,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-8 w-8 text-blue-600 mr-2" />
+              <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8 mr-2" />
               <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Reset your password</p>
@@ -396,7 +396,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-8 w-8 text-blue-600 mr-2" />
+              <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8 mr-2" />
               <h1 className="text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-gray-600">Set your new password</p>
@@ -455,7 +455,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Building className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2" />
+              <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-6 w-6 sm:h-8 sm:w-8 mr-2" />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Sadhisha Real CRM</h1>
             </div>
             <p className="text-sm sm:text-base text-gray-600">Experience AI-powered real estate management</p>

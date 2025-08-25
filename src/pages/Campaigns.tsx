@@ -83,7 +83,10 @@ const Campaigns = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Ad Campaigns</h1>
+          <div className="flex items-center space-x-3 mb-2">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+            <h1 className="text-3xl font-bold">Sadhisha Real CRM - Ad Campaigns</h1>
+          </div>
           <p className="text-muted-foreground">Loading campaign integration status...</p>
         </div>
         <div className="flex items-center justify-center py-8">
@@ -97,7 +100,10 @@ const Campaigns = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Ad Campaigns</h1>
+          <div className="flex items-center space-x-3 mb-2">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+            <h1 className="text-3xl font-bold">Sadhisha Real CRM - Ad Campaigns</h1>
+          </div>
           <p className="text-muted-foreground">Manage your Meta and Instagram advertising campaigns</p>
         </div>
 

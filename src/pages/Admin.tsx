@@ -12,10 +12,13 @@ const Admin = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
-        <p className="text-muted-foreground">
-          Manage system settings and user permissions
-        </p>
+      <div className="flex items-center space-x-3 mb-4">
+        <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-8 w-8" />
+        <h1 className="text-3xl font-bold text-foreground">Sadhisha Real CRM - Admin Panel</h1>
+      </div>
+      <p className="text-muted-foreground">
+        Manage system settings and user permissions
+      </p>
       </div>
 
       <Tabs defaultValue="invitations" className="space-y-6">

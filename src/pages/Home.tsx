@@ -101,8 +101,8 @@ const Home = () => {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Building className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          <div className="flex items-center space-x-3">
+            <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-6 w-6 sm:h-8 sm:w-8" />
             <span className="text-lg sm:text-xl font-bold text-foreground">Sadhisha Real CRM</span>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -354,8 +354,8 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Building className="h-6 w-6 text-primary" />
+              <div className="flex items-center space-x-3 mb-4">
+                <img src="/lovable-uploads/50b094d9-5ab3-47e8-ae1d-a4820f6ec638.png" alt="Sadhisha Logo" className="h-6 w-6 text-primary" />
                 <span className="text-lg font-bold">Sadhisha Real CRM</span>
               </div>
               <p className="text-slate-400 text-sm">
