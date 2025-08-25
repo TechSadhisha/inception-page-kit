@@ -102,12 +102,8 @@ const Home = () => {
       <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/0fc0aac0-06be-4d68-a02a-4f47dbc6a6a7.png" 
-              alt="Sadhisha AI Solutions" 
-              className="h-6 w-auto sm:h-8 sm:w-auto"
-            />
-            <span className="text-xs sm:text-sm text-muted-foreground">CRM</span>
+            <Building className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <span className="text-lg sm:text-xl font-bold text-foreground">Sadhisha Real CRM</span>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
             <Link to="/auth">
@@ -359,12 +355,8 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img 
-                  src="/lovable-uploads/0fc0aac0-06be-4d68-a02a-4f47dbc6a6a7.png" 
-                  alt="Sadhisha AI Solutions" 
-                  className="h-6 w-auto"
-                />
-                <span className="text-sm text-slate-400">CRM</span>
+                <Building className="h-6 w-6 text-primary" />
+                <span className="text-lg font-bold">Sadhisha Real CRM</span>
               </div>
               <p className="text-slate-400 text-sm">
                 AI-powered CRM solution for real estate excellence.

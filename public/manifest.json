@@ -1,6 +1,6 @@
 {
-  "name": "Sadhisha AI Solutions CRM",
-  "short_name": "Sadhisha CRM",
+  "name": "Sadhisha CRM",
+  "short_name": "CRM",
   "description": "AI-powered real estate CRM for managing leads, prospects, and campaigns",
   "start_url": "/",
   "scope": "/",
@@ -10,15 +10,20 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/lovable-uploads/0fc0aac0-06be-4d68-a02a-4f47dbc6a6a7.png",
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/placeholder.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/0fc0aac0-06be-4d68-a02a-4f47dbc6a6a7.png",
+      "src": "/placeholder.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     }
   ],
