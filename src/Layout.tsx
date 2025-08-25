@@ -57,7 +57,14 @@ const Layout = () => {
         <div className="w-64 bg-card border-r border-border">
           <div className="flex flex-col h-full">
             <div className="p-6">
-              <h1 className="text-xl font-bold text-foreground">Real Estate CRM</h1>
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/lovable-uploads/0fc0aac0-06be-4d68-a02a-4f47dbc6a6a7.png" 
+                  alt="Sadhisha AI Solutions" 
+                  className="h-8 w-auto"
+                />
+                <div className="text-xs text-muted-foreground">CRM</div>
+              </div>
             </div>
             
             <nav className="flex-1 px-4 space-y-2">
